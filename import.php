@@ -69,6 +69,7 @@ $PAGE->set_heading($COURSE->fullname);
 $PAGE->activityheader->disable();
 
 $importform = new import_form();
+$importform->set_data($urlparams);
 
 // Handle form cancelled.
 if ($importform->is_cancelled()) {

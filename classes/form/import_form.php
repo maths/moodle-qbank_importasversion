@@ -46,6 +46,18 @@ class import_form extends moodleform {
         $mform->addElement('filepicker', 'newfile', get_string('import'));
         $mform->addRule('newfile', null, 'required', null, 'client');
 
+        $mform->addElement('hidden', 'id');
+        $mform->setType('id', PARAM_INT);
+
+        $mform->addElement('hidden', 'courseid');
+        $mform->setType('courseid', PARAM_INT);
+
+        $mform->addElement('hidden', 'cmid');
+        $mform->setType('cmid', PARAM_INT);
+
+        $mform->addElement('hidden', 'returnurl');
+        $mform->setType('returnurl', PARAM_LOCALURL);
+
         // Submit and cancel buttons.
         $this->add_action_buttons(true, get_string('import'));
     }
