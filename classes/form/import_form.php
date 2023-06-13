@@ -28,9 +28,12 @@ defined('MOODLE_INTERNAL') || die();
 
 use moodle_exception;
 use moodleform;
+use qformat_xml;
 use stdClass;
 
 require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/question/format.php');
+require_once($CFG->dirroot . '/question/format/xml/format.php');
 
 /**
  * Form to import questions as new versions into the question bank.
@@ -71,6 +74,7 @@ class import_form extends moodleform {
      * @return array the updated errors.
      */
     protected function validate_uploaded_file($data, $errors) {
+        global $CFG;
 
         if (empty($data['newfile'])) {
             $errors['newfile'] = get_string('required');
@@ -83,20 +87,7 @@ class import_form extends moodleform {
             return $errors;
         }
 
-        if (empty($data['format'])) {
-            $errors['format'] = get_string('required');
-            return $errors;
-        }
-
-        $formatfile = $CFG->dirroot . '/question/format/xml/format.php';
-        if (!is_readable($formatfile)) {
-            throw new moodle_exception('formatnotfound', 'question', '', $data['format']);
-        }
-
-        require_once($formatfile);
-
-        $classname = 'qformat_' . $data['format'];
-        $qformat = new $classname();
+        $qformat = new qformat_xml();
 
         $file = reset($files);
         if (!$qformat->can_import_file($file)) {
