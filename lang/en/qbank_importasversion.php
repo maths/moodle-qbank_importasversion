@@ -25,8 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['importasversion'] = 'Import question as new version';
 $string['importasversion_help'] = 'Imports a question from a file but creates a new version of an existing question';
+$string['importasversion'] = 'Import new version';
+$string['importerror'] = 'Error while importing the file';
+$string['importnewversionofx'] = 'Import a new version of question {$a}';
 $string['pluginname'] = 'Import question as new version';
 
-$string['importerror'] = 'Error while importing the file';

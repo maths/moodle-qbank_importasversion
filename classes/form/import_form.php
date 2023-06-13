@@ -38,86 +38,16 @@ require_once($CFG->libdir . '/formslib.php');
  * @copyright  2023 Andreas Steiger andreas.steiger@math.ethz.ch
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class question_import_form extends moodleform {
+class import_form extends moodleform {
 
-    /**
-     * Build the form definition.
-     *
-     * This adds all the form fields that the manage categories feature needs.
-     * @throws \coding_exception
-     */
     protected function definition() {
-        global $OUTPUT;
-
         $mform = $this->_form;
-
-        $defaultcategory = $this->_customdata['defaultcategory'];
-        $contexts = $this->_customdata['contexts'];
-
-        // Choice of import format, with help icons.
-        /*
-        $mform->addElement('header', 'fileformat', get_string('fileformat', 'question'));
-
-        $fileformatnames = get_import_export_formats('import');
-        $radioarray = [];
-        $separators = [];
-        foreach ($fileformatnames as $shortname => $fileformatname) {
-            $radioarray[] = $mform->createElement('radio', 'format', '', $fileformatname, $shortname);
-
-            $separator = '';
-            if (get_string_manager()->string_exists('pluginname_help', 'qformat_' . $shortname)) {
-                $separator .= $OUTPUT->help_icon('pluginname', 'qformat_' . $shortname);
-            }
-            $separator .= '<div class="w-100"></div>';
-            $separators[] = $separator;
-        }
-
-        $radioarray[] = $mform->createElement('static', 'makelasthelpiconshowup', '');
-        $mform->addGroup($radioarray, "formatchoices", '', $separators, false);
-        $mform->addRule("formatchoices", null, 'required', null, 'client');
-`       */
-
-        // Import options.
-        /*
-        $mform->addElement('header', 'general', get_string('general', 'form'));
-
-        $mform->addElement('questioncategory', 'category', get_string('importcategory', 'question'), compact('contexts'));
-        $mform->setDefault('category', $defaultcategory);
-        $mform->addHelpButton('category', 'importcategory', 'question');
-
-        $categorygroup = [];
-        $categorygroup[] = $mform->createElement('checkbox', 'catfromfile', '', get_string('getcategoryfromfile', 'question'));
-        $categorygroup[] = $mform->createElement('checkbox', 'contextfromfile', '', get_string('getcontextfromfile', 'question'));
-        $mform->addGroup($categorygroup, 'categorygroup', '', '', false);
-        $mform->disabledIf('categorygroup', 'catfromfile', 'notchecked');
-        $mform->setDefault('catfromfile', 1);
-        $mform->setDefault('contextfromfile', 1);
-
-        $matchgrades = [];
-        $matchgrades['error'] = get_string('matchgradeserror', 'question');
-        $matchgrades['nearest'] = get_string('matchgradesnearest', 'question');
-        $mform->addElement('select', 'matchgrades', get_string('matchgrades', 'question'), $matchgrades);
-        $mform->addHelpButton('matchgrades', 'matchgrades', 'question');
-        $mform->setDefault('matchgrades', 'error');
-
-        $mform->addElement('selectyesno', 'stoponerror', get_string('stoponerror', 'question'));
-        $mform->setDefault('stoponerror', 1);
-        $mform->addHelpButton('stoponerror', 'stoponerror', 'question');
-        */
-
-        // The file to import.
-        $mform->addElement('header', 'importfileupload', get_string('importasversion', 'qbank_importasversion'));
 
         $mform->addElement('filepicker', 'newfile', get_string('import'));
         $mform->addRule('newfile', null, 'required', null, 'client');
 
         // Submit button.
-        $mform->addElement('submit', 'submitbutton', get_string('import'));
-
-        // Set a template for the format select elements.
-        $renderer = $mform->defaultRenderer();
-        $template = "{help} {element}\n";
-        $renderer->setGroupElementTemplate($template, 'format');
+        $this->add_action_buttons(true, get_string('import'));
     }
 
     /**
@@ -128,7 +58,6 @@ class question_import_form extends moodleform {
      * @throws moodle_exception
      */
     protected function validate_uploaded_file($data, $errors) {
-        global $CFG;
 
         if (empty($data['newfile'])) {
             $errors['newfile'] = get_string('required');

@@ -33,7 +33,7 @@ class import_as_version_action_column extends menu_action_column_base {
 
     public function init(): void {
         parent::init();
-        $this->actionname = get_string('importasversion');
+        $this->actionname = get_string('importasversion', 'qbank_importasversion');
     }
 
     public function get_name(): string {
@@ -64,6 +64,6 @@ class import_as_version_action_column extends menu_action_column_base {
         }
 
         return [new moodle_url('/question/bank/importasversion/import.php', $params),
-                't/import', $this->actionname];
+                't/restore', $this->actionname];
     }
 }
