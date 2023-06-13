@@ -46,12 +46,13 @@ class import_form extends moodleform {
         $mform->addElement('filepicker', 'newfile', get_string('import'));
         $mform->addRule('newfile', null, 'required', null, 'client');
 
-        // Submit button.
+        // Submit and cancel buttons.
         $this->add_action_buttons(true, get_string('import'));
     }
 
     /**
      * Checks that a file has been uploaded, and that it is of a plausible type.
+     *
      * @param array $data the submitted data.
      * @param array $errors the errors so far.
      * @return array the updated errors.
@@ -75,7 +76,7 @@ class import_form extends moodleform {
             return $errors;
         }
 
-        //$formatfile = $CFG->dirroot . '/question/format/xml/format.php';
+        $formatfile = $CFG->dirroot . '/question/format/xml/format.php';
         if (!is_readable($formatfile)) {
             throw new moodle_exception('formatnotfound', 'question', '', $data['format']);
         }
