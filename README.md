@@ -28,7 +28,7 @@ Site administration > Notifications
 
 ## Credits ##
 
-This plugin was created at the 2023 MootDACH DevCamp by Tim Hunt, Michael Kallweit (please add your names).
+This plugin was created at the 2023 MootDACH DevCamp by Tim Hunt, Michael Kallweit, Andreas Steiger (please add your names).
 
 
 ## License ##
