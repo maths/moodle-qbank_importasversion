@@ -25,4 +25,5 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['importasversion'] = 'Import new version';
 $string['pluginname'] = 'Import question as new version';
