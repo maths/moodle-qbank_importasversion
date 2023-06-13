@@ -43,7 +43,8 @@ class import_form extends moodleform {
     protected function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('filepicker', 'newfile', get_string('import'));
+        $mform->addElement('filepicker', 'newfile', get_string('import'),
+                null, ['accepted_types' => '.xml']);
         $mform->addRule('newfile', null, 'required', null, 'client');
 
         $mform->addElement('hidden', 'id');
@@ -68,7 +69,6 @@ class import_form extends moodleform {
      * @param array $data the submitted data.
      * @param array $errors the errors so far.
      * @return array the updated errors.
-     * @throws moodle_exception
      */
     protected function validate_uploaded_file($data, $errors) {
 

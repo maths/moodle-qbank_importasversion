@@ -17,10 +17,10 @@
 /**
  * Plugin strings are defined here.
  *
- * @package     qbank_importasversion
- * @category    string
- * @copyright   2023 MootDACH DevCamp
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   qbank_importasversion
+ * @category  string
+ * @copyright 2023 MootDACH DevCamp
+ * @license   https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
