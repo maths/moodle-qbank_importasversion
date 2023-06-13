@@ -34,4 +34,4 @@ Feature: Importing a question as a new version of an existing question
     And I should see "application/xml .xml"
     And I press "Import"
     And I should see "Required" in the "id_newfile_fieldset" "fieldset"
-
+    
