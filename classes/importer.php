@@ -39,10 +39,6 @@ class importer extends qformat_xml {
 
         $context = context::instance_by_id($question->contextid);
 
-        // Raise time and memory, as importing can be quite intensive.
-        //\core_php_time_limit::raise();
-        //raise_memory_limit(MEMORY_EXTRA);
-
         // STAGE 1: Parse the file
         if ($qformat->displayprogress) {
             echo $OUTPUT->notification(get_string('parsingquestions', 'question'), 'notifysuccess');
@@ -53,8 +49,6 @@ class importer extends qformat_xml {
             return false;
         }
 
-        //print_object($importedlines);
-
         if (!$importedquestions = $qformat->readquestions($importedlines)) {   // Extract all the questions
             echo $OUTPUT->notification(get_string('noquestionsinfile', 'question'));
             return false;
@@ -64,8 +58,6 @@ class importer extends qformat_xml {
             echo $OUTPUT->notification(get_string('toomanyquestionsinfile', 'qbank_importasversion'));
             return false;   
         }
-
-        //print_object($importedquestions);
 
         // STAGE 2: Write data to database
         if ($qformat->displayprogress) {
@@ -79,13 +71,6 @@ class importer extends qformat_xml {
             return true;
         }
 
-        // check for errors before we continue
-        /*
-        if ($qformat->stoponerror) {
-            return false;
-        }
-        */
-
         // count number of questions processed
         $count = 0;
 
@@ -94,9 +79,6 @@ class importer extends qformat_xml {
 
         //foreach ($existingquestions as $existingquestion) {   // Process and store each question
             $transaction = $DB->start_delegated_transaction();
-
-            // reset the php timeout
-            //\core_php_time_limit::raise();
 
             $count++;
 
@@ -126,9 +108,6 @@ class importer extends qformat_xml {
             $questionversion->version = get_next_version($question->questionbankentryid);
             $questionversion->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY; // TODO: Give an option on the form
             $questionversion->id = $DB->insert_record('question_versions', $questionversion);
-
-            //$event = \core\event\question_created::create_from_question_instance($newquestion, $qformat->importcontext);
-            //$event->trigger();
 
             if (isset($newquestion->questiontextitemid)) {
                 $newquestion->questiontext = file_save_draft_area_files($newquestion->questiontextitemid,

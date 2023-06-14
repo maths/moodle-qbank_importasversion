@@ -82,8 +82,6 @@ if ($fromform = $importform->get_data()) {
 
     $fromform->format = 'xml';
 
-    //print_object($fromform->contextfromfile);
-
     // File checks out ok.
     $fileisgood = false;
 
@@ -105,17 +103,6 @@ if ($fromform = $importform->get_data()) {
     $classname = 'qformat_' . $fromform->format;
     $qformat = new $classname();
     
-    // Load data into class.
-    /*$qformat->setCategory($category);
-    $qformat->setContexts($contexts->having_one_edit_tab_cap('import'));
-    $qformat->setCourse($COURSE);
-    $qformat->setFilename($importfile);
-    $qformat->setRealfilename($realfilename);
-    $qformat->setMatchgrades($form->matchgrades);
-    $qformat->setCatfromfile(!empty($form->catfromfile));
-    qformat->setContextfromfile(!empty($fromform->contextfromfile));
-    $qformat->setStoponerror($form->stoponerror);*/
-    
     // Do anything before that we need to.
     if (!$qformat->importpreprocess()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
@@ -128,21 +115,8 @@ if ($fromform = $importform->get_data()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
     }
     
-    // Log the import into this category.
-    /*$eventparams = [
-            'contextid' => $qformat->category->contextid,
-            'other' => ['format' => $form->format, 'categoryid' => $qformat->category->id],
-    ];
-    $event = \core\event\questions_imported::create($eventparams);
-    $event->trigger();
-    */
-    //$params = $urlparams + ['category' => $qformat->category->id . ',' . $qformat->category->contextid];
-    redirect($returnurl, get_string('questionimportedasversion', 'qbank_importasversion'));
-    //echo $OUTPUT->footer();
+    redirect($returnurl, get_string('questionimportedasversion', 'qbank_importasversion', format_string($question->name)));
     exit;
-
-
-
 }
 
 // Display the form.
