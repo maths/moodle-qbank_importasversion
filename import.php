@@ -137,7 +137,7 @@ if ($fromform = $importform->get_data()) {
     $event->trigger();
     */
     //$params = $urlparams + ['category' => $qformat->category->id . ',' . $qformat->category->contextid];
-    echo $OUTPUT->continue_button($returnurl);
+    redirect($returnurl, get_string('questionimportedasversion', 'qbank_importasversion'));
     //echo $OUTPUT->footer();
     exit;
 

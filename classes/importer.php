@@ -91,10 +91,6 @@ class importer extends qformat_xml {
 
         // for now, single question
         $importedquestion = $importedquestions[0];
-        //$existingquestion = $DB->get_record('question', ['id' => $existingquestionid]);
-        //$existingquestionversion = $DB->get_record('question_versions', ['questionid' => $question->id]);
-
-        //print_object($question);
 
         //foreach ($existingquestions as $existingquestion) {   // Process and store each question
             $transaction = $DB->start_delegated_transaction();
@@ -113,12 +109,16 @@ class importer extends qformat_xml {
                     'maxfiles' => -1,
                     'maxbytes' => 0,
                 );
-            
-            //print_object($existingquestion);
 
+            // create new question object from imported question
             $newquestion = $importedquestion;
-            $newquestion->context = $context;
+            $newquestion->createdby = $USER->id;
+            $newquestion->timecreated = time();
+            $newquestion->modifiedby = $USER->id;
+            $newquestion->timemodified = time();
+            $newquestion->context = $context; // context is taken from the existing question
             $newquestion->id = $DB->insert_record('question', $importedquestion);
+
             // Create a version for each question imported.
             $questionversion = new \stdClass();
             $questionversion->questionbankentryid = $question->questionbankentryid;
@@ -161,12 +161,9 @@ class importer extends qformat_xml {
             if (core_tag_tag::is_enabled('core_question', 'question')) {
                 // Is the current context we're importing in a course context?
                 $importingcontext = $context;
-                //print_object($question);
-                //echo "hello";
                 $importingcoursecontext = $importingcontext->get_course_context(false);
                 $isimportingcontextcourseoractivity = !empty($importingcoursecontext);
 
-                //print_object($newquestion);
                 if (!empty($newquestion->coursetags)) {
                     if ($isimportingcontextcourseoractivity) {
                         $mergedtags = array_merge($newquestion->coursetags, $newquestion->tags);
