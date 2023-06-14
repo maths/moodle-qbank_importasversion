@@ -20,6 +20,7 @@ use context;
 use context_course;
 use core_question\local\bank\plugin_features_base;
 use core_tag_tag;
+use exception;
 use qformat_xml;
 use question_bank;
 
@@ -34,41 +35,27 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
  */
 class importer extends qformat_xml {
 
+    public function validation() {
+
+
+    }
+
     public static function import_file($qformat, $question, $importedquestionfile)  {
         global $USER, $DB, $OUTPUT;
 
         $context = context::instance_by_id($question->contextid);
 
         // STAGE 1: Parse the file
-        if ($qformat->displayprogress) {
-            echo $OUTPUT->notification(get_string('parsingquestions', 'question'), 'notifysuccess');
-        }
-
         if (! $importedlines = $qformat->readdata($importedquestionfile)) {
-            echo $OUTPUT->notification(get_string('cannotread', 'question'));
-            return false;
+            throw new exception(get_string('cannotread', 'question'));
         }
 
         if (!$importedquestions = $qformat->readquestions($importedlines)) {   // Extract all the questions
-            echo $OUTPUT->notification(get_string('noquestionsinfile', 'question'));
-            return false;
+            throw new exception(get_string('noquestionsinfile', 'question'));
         }
 
         if (count($importedquestions) != 1) { // Check if there's only one question in the file -- remove this once we do batch processing!
-            echo $OUTPUT->notification(get_string('toomanyquestionsinfile', 'qbank_importasversion'));
-            return false;   
-        }
-
-        // STAGE 2: Write data to database
-        if ($qformat->displayprogress) {
-            echo $OUTPUT->notification(get_string('importingquestions', 'question',
-                $qformat->count_questions($question->id)), 'notifysuccess');
-        }
-
-        // check for errors before we continue
-        if ($qformat->stoponerror and ($qformat->importerrors>0)) {
-            echo $OUTPUT->notification(get_string('importparseerror', 'question'));
-            return true;
+            throw new exception(get_string('toomanyquestionsinfile', 'qbank_importasversion'));
         }
 
         // count number of questions processed
