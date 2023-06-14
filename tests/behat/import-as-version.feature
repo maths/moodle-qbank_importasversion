@@ -23,13 +23,13 @@ Feature: Importing a question as a new version of an existing question
 
   Scenario: The import process can be cancelled
     When I am on the "Course 1" "core_question > course question bank" page logged in as teacher
-    And I choose "Import new version" action for "Test question" in the question bank
+    And I choose "Import a new version" action for "Test question" in the question bank
     And I press "Cancel"
     Then I should see "v1" in the "Test question" "table_row"
 
   Scenario: Form validations verifies that a file was uploaded
     When I am on the "Course 1" "core_question > course question bank" page logged in as teacher
-    And I choose "Import new version" action for "Test question" in the question bank
+    And I choose "Import a new version" action for "Test question" in the question bank
     Then I should see "Accepted file types"
     And I should see "application/xml .xml"
     And I press "Import"
@@ -38,7 +38,7 @@ Feature: Importing a question as a new version of an existing question
   @javascript @_file_upload
   Scenario: Question can be imported as a new version
     When I am on the "Course 1" "core_question > course question bank" page logged in as teacher
-    And I choose "Import new version" action for "Test question" in the question bank
+    And I choose "Import a new version" action for "Test question" in the question bank
     And I upload "question/bank/importasversion/tests/fixtures/edited-true-false-question.xml" file to "Import" filemanager
     And I press "Import"
     Then I should see "New version of question 'Test question' imported successfully."

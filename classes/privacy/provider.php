@@ -22,6 +22,7 @@ use core_privacy\local\metadata\null_provider;
  * Privacy Subsystem for qbank_importasversion implementing null_provider.
  *
  * @package   qbank_importasversion
+ * @category  privacy
  * @copyright 2023 MootDACH DevCamp
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

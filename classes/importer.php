@@ -18,9 +18,9 @@ namespace qbank_importasversion;
 
 use context;
 use context_course;
-use core_question\local\bank\plugin_features_base;
 use core_tag_tag;
 use exception;
+use qbank_importasversion\event\question_version_imported;
 use qformat_xml;
 use question_bank;
 
@@ -158,6 +158,16 @@ class importer extends qformat_xml {
                 $DB->force_transaction_rollback();
                 return false;
             }
+
+            question_version_imported::create([
+                'context' => $context,
+                'objectid' => $newquestion->id,
+                'other' => [
+                    'categoryid' => $question->category,
+                    'questionbankentryid' => $question->questionbankentryid,
+                    'version' => $questionversion->version,
+                ],
+            ])->trigger();
 
             $transaction->allow_commit();
 
