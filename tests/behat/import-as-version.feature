@@ -33,4 +33,4 @@ Feature: Importing a question as a new version of an existing question
     Then I should see "Accepted file types"
     And I should see "application/xml .xml"
     And I press "Import"
-    And I should see "Required" in the "id_newfile_fieldset" "fieldset"
+    And I should see "Required" in the "fitem_id_newfile" "region"
