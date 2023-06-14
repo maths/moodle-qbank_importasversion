@@ -18,6 +18,7 @@ namespace qbank_importasversion;
 
 use context;
 use context_course;
+use core_question\local\bank\question_version_status;
 use core_tag_tag;
 use exception;
 use qbank_importasversion\event\question_version_imported;
@@ -50,11 +51,13 @@ class importer extends qformat_xml {
             throw new exception(get_string('cannotread', 'question'));
         }
 
-        if (!$importedquestions = $qformat->readquestions($importedlines)) {   // Extract all the questions
+        // Extract all the questions.
+        if (!$importedquestions = $qformat->readquestions($importedlines)) {
             throw new exception(get_string('noquestionsinfile', 'question'));
         }
 
-        if (count($importedquestions) != 1) { // Check if there's only one question in the file -- remove this once we do batch processing!
+        // Check if there's only one question in the file -- remove this once we do batch processing!
+        if (count($importedquestions) != 1) {
             throw new exception(get_string('toomanyquestionsinfile', 'qbank_importasversion'));
         }
 
@@ -84,7 +87,7 @@ class importer extends qformat_xml {
         $newquestion->timecreated = time();
         $newquestion->modifiedby = $USER->id;
         $newquestion->timemodified = time();
-        $newquestion->context = $context; // context is taken from the existing question
+        $newquestion->context = $context; // Context is taken from the existing question.
         $newquestion->id = $DB->insert_record('question', $importedquestion);
 
         // Create a version for each question imported.
@@ -92,7 +95,7 @@ class importer extends qformat_xml {
         $questionversion->questionbankentryid = $question->questionbankentryid;
         $questionversion->questionid = $newquestion->id;
         $questionversion->version = get_next_version($question->questionbankentryid);
-        $questionversion->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY; // TODO: Give an option on the form
+        $questionversion->status = question_version_status::QUESTION_STATUS_READY; // TODO: Give an option on the form.
         $questionversion->id = $DB->insert_record('question_versions', $questionversion);
 
         if (isset($newquestion->questiontextitemid)) {

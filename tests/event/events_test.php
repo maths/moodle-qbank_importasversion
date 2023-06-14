@@ -17,9 +17,6 @@
 namespace qbank_importasversion\event;
 
 use context_course;
-use core_question_generator;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Events tests.
@@ -28,6 +25,7 @@ defined('MOODLE_INTERNAL') || die();
  * @category  test
  * @copyright 2023 MootDACH DevCamp
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \qbank_importasversion\event\question_version_imported
  */
 class events_test extends \advanced_testcase {
 
@@ -35,7 +33,6 @@ class events_test extends \advanced_testcase {
         global $USER;
         $this->resetAfterTest();
         $this->setAdminUser();
-        $generator = $this->getDataGenerator();
         $course = $this->getDataGenerator()->create_course();
         $context = context_course::instance($course->id);
 
