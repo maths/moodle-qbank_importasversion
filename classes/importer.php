@@ -24,6 +24,8 @@ use qbank_importasversion\event\question_version_imported;
 use qformat_xml;
 use question_bank;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/question/format/xml/format.php');
 
 /**
@@ -36,16 +38,14 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
 class importer extends qformat_xml {
 
     public function validation() {
-
-
     }
 
-    public static function import_file($qformat, $question, $importedquestionfile)  {
+    public static function import_file($qformat, $question, $importedquestionfile) {
         global $USER, $DB, $OUTPUT;
 
         $context = context::instance_by_id($question->contextid);
 
-        // STAGE 1: Parse the file
+        // STAGE 1: Parse the file.
         if (! $importedlines = $qformat->readdata($importedquestionfile)) {
             throw new exception(get_string('cannotread', 'question'));
         }
@@ -58,125 +58,123 @@ class importer extends qformat_xml {
             throw new exception(get_string('toomanyquestionsinfile', 'qbank_importasversion'));
         }
 
-        // count number of questions processed
+        // Count number of questions processed.
         $count = 0;
 
-        // for now, single question
+        // For now, single question.
         $importedquestion = $importedquestions[0];
 
-        //foreach ($existingquestions as $existingquestion) {   // Process and store each question
-            $transaction = $DB->start_delegated_transaction();
+        $transaction = $DB->start_delegated_transaction();
 
-            $count++;
+        $count++;
 
-            if ($qformat->displayprogress) {
-                echo "<hr /><p><b>{$count}</b>. " . $qformat->format_question_text($question) . "</p>";
+        if ($qformat->displayprogress) {
+            echo "<hr /><p><b>{$count}</b>. " . $qformat->format_question_text($question) . "</p>";
+        }
+
+        $fileoptions = [
+                'subdirs' => true,
+                'maxfiles' => -1,
+                'maxbytes' => 0,
+        ];
+
+        // Create new question object from imported question.
+        $newquestion = $importedquestion;
+        $newquestion->createdby = $USER->id;
+        $newquestion->timecreated = time();
+        $newquestion->modifiedby = $USER->id;
+        $newquestion->timemodified = time();
+        $newquestion->context = $context; // context is taken from the existing question
+        $newquestion->id = $DB->insert_record('question', $importedquestion);
+
+        // Create a version for each question imported.
+        $questionversion = new \stdClass();
+        $questionversion->questionbankentryid = $question->questionbankentryid;
+        $questionversion->questionid = $newquestion->id;
+        $questionversion->version = get_next_version($question->questionbankentryid);
+        $questionversion->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY; // TODO: Give an option on the form
+        $questionversion->id = $DB->insert_record('question_versions', $questionversion);
+
+        if (isset($newquestion->questiontextitemid)) {
+            $newquestion->questiontext = file_save_draft_area_files($newquestion->questiontextitemid,
+                    $context->id, 'question', 'questiontext', $newquestion->id,
+                    $fileoptions, $newquestion->questiontext);
+        } else if (isset($newquestion->questiontextfiles)) {
+            foreach ($newquestion->questiontextfiles as $file) {
+                question_bank::get_qtype($newquestion->qtype)->import_file(
+                        $context, 'question', 'questiontext', $newquestion->id, $file);
             }
-
-            $fileoptions = array(
-                    'subdirs' => true,
-                    'maxfiles' => -1,
-                    'maxbytes' => 0,
-                );
-
-            // create new question object from imported question
-            $newquestion = $importedquestion;
-            $newquestion->createdby = $USER->id;
-            $newquestion->timecreated = time();
-            $newquestion->modifiedby = $USER->id;
-            $newquestion->timemodified = time();
-            $newquestion->context = $context; // context is taken from the existing question
-            $newquestion->id = $DB->insert_record('question', $importedquestion);
-
-            // Create a version for each question imported.
-            $questionversion = new \stdClass();
-            $questionversion->questionbankentryid = $question->questionbankentryid;
-            $questionversion->questionid = $newquestion->id;
-            $questionversion->version = get_next_version($question->questionbankentryid);
-            $questionversion->status = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY; // TODO: Give an option on the form
-            $questionversion->id = $DB->insert_record('question_versions', $questionversion);
-
-            if (isset($newquestion->questiontextitemid)) {
-                $newquestion->questiontext = file_save_draft_area_files($newquestion->questiontextitemid,
-                        $context->id, 'question', 'questiontext', $newquestion->id,
-                        $fileoptions, $newquestion->questiontext);
-            } else if (isset($newquestion->questiontextfiles)) {
-                foreach ($newquestion->questiontextfiles as $file) {
-                    question_bank::get_qtype($newquestion->qtype)->import_file(
-                            $context, 'question', 'questiontext', $newquestion->id, $file);
-                }
+        }
+        if (isset($newquestion->generalfeedbackitemid)) {
+            $newquestion->generalfeedback = file_save_draft_area_files($newquestion->generalfeedbackitemid,
+                    $context->id, 'question', 'generalfeedback', $newquestion->id,
+                    $fileoptions, $newquestion->generalfeedback);
+        } else if (isset($newquestion->generalfeedbackfiles)) {
+            foreach ($newquestion->generalfeedbackfiles as $file) {
+                question_bank::get_qtype($newquestion->qtype)->import_file(
+                        $context, 'question', 'generalfeedback', $newquestion->id, $file);
             }
-            if (isset($newquestion->generalfeedbackitemid)) {
-                $newquestion->generalfeedback = file_save_draft_area_files($newquestion->generalfeedbackitemid,
-                        $context->id, 'question', 'generalfeedback', $newquestion->id,
-                        $fileoptions, $newquestion->generalfeedback);
-            } else if (isset($newquestion->generalfeedbackfiles)) {
-                foreach ($newquestion->generalfeedbackfiles as $file) {
-                    question_bank::get_qtype($newquestion->qtype)->import_file(
-                            $context, 'question', 'generalfeedback', $newquestion->id, $file);
-                }
-            }
-            $DB->update_record('question', $newquestion);
+        }
+        $DB->update_record('question', $newquestion);
 
-            $qformat->questionids[] = $newquestion->id;
+        $qformat->questionids[] = $newquestion->id;
 
-            // Now to save all the answers and type-specific options
+        // Now to save all the answers and type-specific options.
 
-            $result = question_bank::get_qtype($newquestion->qtype)->save_question_options($newquestion);
+        $result = question_bank::get_qtype($newquestion->qtype)->save_question_options($newquestion);
 
-            if (core_tag_tag::is_enabled('core_question', 'question')) {
-                // Is the current context we're importing in a course context?
-                $importingcontext = $context;
-                $importingcoursecontext = $importingcontext->get_course_context(false);
-                $isimportingcontextcourseoractivity = !empty($importingcoursecontext);
+        if (core_tag_tag::is_enabled('core_question', 'question')) {
+            // Is the current context we're importing in a course context?
+            $importingcontext = $context;
+            $importingcoursecontext = $importingcontext->get_course_context(false);
+            $isimportingcontextcourseoractivity = !empty($importingcoursecontext);
 
-                if (!empty($newquestion->coursetags)) {
-                    if ($isimportingcontextcourseoractivity) {
-                        $mergedtags = array_merge($newquestion->coursetags, $newquestion->tags);
+            if (!empty($newquestion->coursetags)) {
+                if ($isimportingcontextcourseoractivity) {
+                    $mergedtags = array_merge($newquestion->coursetags, $newquestion->tags);
 
-                        core_tag_tag::set_item_tags('core_question', 'question', $newquestion->id,
-                            $newquestion->context, $mergedtags);
-                    } else {
-                        core_tag_tag::set_item_tags('core_question', 'question', $newquestion->id,
-                            context_course::instance($qformat->course->id), $newquestion->coursetags);
-
-                        if (!empty($newquestion->tags)) {
-                            core_tag_tag::set_item_tags('core_question', 'question', $newquestion->id,
-                                $importingcontext, $newquestion->tags);
-                        }
-                    }
-                } else if (!empty($newquestion->tags)) {
                     core_tag_tag::set_item_tags('core_question', 'question', $newquestion->id,
-                        $newquestion->context, $newquestion->tags);
+                        $newquestion->context, $mergedtags);
+                } else {
+                    core_tag_tag::set_item_tags('core_question', 'question', $newquestion->id,
+                        context_course::instance($qformat->course->id), $newquestion->coursetags);
+
+                    if (!empty($newquestion->tags)) {
+                        core_tag_tag::set_item_tags('core_question', 'question', $newquestion->id,
+                            $importingcontext, $newquestion->tags);
+                    }
                 }
+            } else if (!empty($newquestion->tags)) {
+                core_tag_tag::set_item_tags('core_question', 'question', $newquestion->id,
+                    $newquestion->context, $newquestion->tags);
             }
+        }
 
-            if (!empty($result->error)) {
-                echo $OUTPUT->notification($result->error);
-                // Can't use $transaction->rollback(); since it requires an exception,
-                // and I don't want to rewrite this code to change the error handling now.
-                $DB->force_transaction_rollback();
-                return false;
-            }
+        if (!empty($result->error)) {
+            echo $OUTPUT->notification($result->error);
+            // Can't use $transaction->rollback(); since it requires an exception,
+            // and I don't want to rewrite this code to change the error handling now.
+            $DB->force_transaction_rollback();
+            return false;
+        }
 
-            question_version_imported::create([
-                'context' => $context,
-                'objectid' => $newquestion->id,
-                'other' => [
-                    'categoryid' => $question->category,
-                    'questionbankentryid' => $question->questionbankentryid,
-                    'version' => $questionversion->version,
-                ],
-            ])->trigger();
+        question_version_imported::create([
+            'context' => $context,
+            'objectid' => $newquestion->id,
+            'other' => [
+                'categoryid' => $question->category,
+                'questionbankentryid' => $question->questionbankentryid,
+                'version' => $questionversion->version,
+            ],
+        ])->trigger();
 
-            $transaction->allow_commit();
+        $transaction->allow_commit();
 
-            if (!empty($result->notice)) {
-                echo $OUTPUT->notification($result->notice);
-                return true;
-            }
+        if (!empty($result->notice)) {
+            echo $OUTPUT->notification($result->notice);
+            return true;
+        }
 
-        //}
         return true;
     }
 }

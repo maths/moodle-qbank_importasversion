@@ -92,17 +92,17 @@ if ($fromform = $importform->get_data()) {
     if (!$result = $importform->save_file('newfile', $importfile, true)) {
         throw new moodle_exception('uploadproblem');
     }
-    
+
     $formatfile = $CFG->dirroot . '/question/format/' . $fromform->format . '/format.php';
     if (!is_readable($formatfile)) {
         throw new moodle_exception('formatnotfound', 'question', '', $fromform->format);
     }
-    
+
     require_once($formatfile);
-    
+
     $classname = 'qformat_' . $fromform->format;
     $qformat = new $classname();
-    
+
     // Do anything before that we need to.
     if (!$qformat->importpreprocess()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
@@ -114,7 +114,7 @@ if ($fromform = $importform->get_data()) {
     if (!$qformat->importpostprocess()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
     }
-    
+
     redirect($returnurl, get_string('questionimportedasversion', 'qbank_importasversion', format_string($question->name)));
     exit;
 }
