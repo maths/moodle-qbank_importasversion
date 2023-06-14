@@ -34,3 +34,12 @@ Feature: Importing a question as a new version of an existing question
     And I should see "application/xml .xml"
     And I press "Import"
     And I should see "Required" in the "fitem_id_newfile" "region"
+
+  @javascript @_file_upload
+  Scenario: Question can be imported as a new version
+    When I am on the "Course 1" "core_question > course question bank" page logged in as teacher
+    And I choose "Import new version" action for "Test question" in the question bank
+    And I upload "question/bank/importasversion/tests/fixtures/edited-true-false-question.xml" file to "Import" filemanager
+    And I press "Import"
+    Then I should see "New version of question 'Test question' imported successfully."
+    And I should see "v2" in the "Updated question" "table_row"

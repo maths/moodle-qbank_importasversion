@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<!-- question: 151000  -->
+  <question type="truefalse">
+    <name>
+      <text>Updated question</text>
+    </name>
+    <questiontext format="html">
+      <text><![CDATA[<p>The right answer is 'False'.</p>]]></text>
+    </questiontext>
+    <generalfeedback format="html">
+      <text></text>
+    </generalfeedback>
+    <defaultgrade>1</defaultgrade>
+    <penalty>1</penalty>
+    <hidden>0</hidden>
+    <idnumber></idnumber>
+    <answer fraction="0" format="moodle_auto_format">
+      <text>true</text>
+      <feedback format="html">
+        <text><![CDATA[This is the right answer.</p>]]></text>
+      </feedback>
+    </answer>
+    <answer fraction="100" format="moodle_auto_format">
+      <text>false</text>
+      <feedback format="html">
+        <text><![CDATA[This is the wrong answer.</p>]]></text>
+      </feedback>
+    </answer>
+  </question>
+</quiz>
