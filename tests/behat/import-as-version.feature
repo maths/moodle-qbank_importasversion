@@ -42,4 +42,5 @@ Feature: Importing a question as a new version of an existing question
     And I upload "question/bank/importasversion/tests/fixtures/edited-true-false-question.xml" file to "Import" filemanager
     And I press "Import"
     Then I should see "New version of question 'Test question' imported successfully."
+    And I should not see "The right answer is 'False'."
     And I should see "v2" in the "Updated question" "table_row"

@@ -102,6 +102,7 @@ if ($fromform = $importform->get_data()) {
 
     $classname = 'qformat_' . $fromform->format;
     $qformat = new $classname();
+    $qformat->displayprogress = false;
 
     // Do anything before that we need to.
     if (!$qformat->importpreprocess()) {
