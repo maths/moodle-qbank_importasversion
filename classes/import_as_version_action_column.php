@@ -16,8 +16,18 @@
 
 namespace qbank_importasversion;
 
-use core_question\local\bank\menu_action_column_base;
 use moodle_url;
+
+// Support multiple Moodle versions. This can be cleaned up once 4.3 is the lowest supported version.
+if (!class_exists('\core_question\local\bank\question_action_base')) {
+    // Moodle up to 4.2.x.
+    class_alias('\core_question\local\bank\menu_action_column_base',
+            'qbank_importasversion\qbank_importasversion_column_parent_class');
+} else {
+    // Moodle 4.3+.
+    class_alias('\core_question\local\bank\question_action_base',
+            'qbank_importasversion\qbank_importasversion_column_parent_class');
+}
 
 /**
  * Action to import a question from a file as a new version of an existing question.
@@ -26,7 +36,7 @@ use moodle_url;
  * @copyright 2023 MootDACH DevCamp
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class import_as_version_action_column extends menu_action_column_base {
+class import_as_version_action_column extends qbank_importasversion_column_parent_class {
 
     /** @var string store the value of the name lang string for performance. */
     protected $actionname;

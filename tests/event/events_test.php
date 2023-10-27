@@ -29,7 +29,7 @@ use context_course;
  */
 class events_test extends \advanced_testcase {
 
-    public function test_imported_is_logged() {
+    public function test_imported_is_logged(): void {
         global $USER;
         $this->resetAfterTest();
         $this->setAdminUser();

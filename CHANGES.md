@@ -4,6 +4,7 @@
 
 * We are declaring this stable. (Has been used at the Open University for several months.)
 * The Question text is no longer output during the import process.
+* Provide compatibility with Moodle 4.3.
 
 ## First Beta release 0.9
 

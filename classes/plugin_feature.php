@@ -17,6 +17,7 @@
 namespace qbank_importasversion;
 
 use core_question\local\bank\plugin_features_base;
+use core_question\local\bank\view;
 
 /**
  * Information about which features are provided by this plugin.
@@ -27,7 +28,21 @@ use core_question\local\bank\plugin_features_base;
  */
 class plugin_feature extends plugin_features_base {
 
+    public function get_question_actions(view $qbank): array {
+        // This is what is used in Moodle 4.3+.
+        return [
+            new import_as_version_action_column($qbank),
+        ];
+    }
+
+    // Support multiple Moodle versions. This method can be removed once 4.3 is the lowest supported version.
     public function get_question_columns($qbank): array {
+        if (class_exists('\core_question\local\bank\question_action_base')) {
+            // We are in Moodle 4.3+. We don't need to implement this method.
+            return [];
+        }
+
+        // Moodle up to 4.2.x.
         return [
             new import_as_version_action_column($qbank),
         ];
