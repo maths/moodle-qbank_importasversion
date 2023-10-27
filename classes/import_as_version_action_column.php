@@ -63,7 +63,10 @@ class import_as_version_action_column extends menu_action_column_base {
             $params['courseid'] = $context->instanceid;
         }
 
-        return [new moodle_url('/question/bank/importasversion/import.php', $params),
-                't/restore', $this->actionname];
+        return [
+            new moodle_url('/question/bank/importasversion/import.php', $params),
+            't/restore',
+            $this->actionname,
+        ];
     }
 }
