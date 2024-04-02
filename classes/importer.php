@@ -88,6 +88,7 @@ class importer extends qformat_xml {
         $newquestion->modifiedby = $USER->id;
         $newquestion->timemodified = time();
         $newquestion->context = $context; // Context is taken from the existing question.
+        $newquestion->category = $question->category;
         $newquestion->id = $DB->insert_record('question', $importedquestion);
 
         // Create a version for each question imported.
