@@ -28,6 +28,7 @@ use core_privacy\local\metadata\null_provider;
  */
 class provider implements null_provider {
 
+    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
     public static function get_reason(): string {
         return 'privacy:metadata';
     }
