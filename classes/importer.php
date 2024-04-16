@@ -24,6 +24,8 @@ use exception;
 use qbank_importasversion\event\question_version_imported;
 use qformat_xml;
 use question_bank;
+use question_definition;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,10 +40,19 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
  */
 class importer extends qformat_xml {
 
-    public function validation() {
-    }
-
-    public static function import_file($qformat, $question, $importedquestionfile) {
+    /**
+     * Import a file to update a given question.
+     *
+     * @param qformat_xml $qformat an instance of
+     * @param question_definition $question the question to add a version to.
+     * @param string $importedquestionfile filename of the file to import.
+     * @return bool true on success. False on failure.
+     */
+    public static function import_file(
+        qformat_xml $qformat,
+        question_definition $question,
+        string $importedquestionfile
+    ) {
         global $USER, $DB, $OUTPUT;
 
         $context = context::instance_by_id($question->contextid);
@@ -92,7 +103,7 @@ class importer extends qformat_xml {
         $newquestion->id = $DB->insert_record('question', $importedquestion);
 
         // Create a version for each question imported.
-        $questionversion = new \stdClass();
+        $questionversion = new stdClass();
         $questionversion->questionbankentryid = $question->questionbankentryid;
         $questionversion->questionid = $newquestion->id;
         $questionversion->version = get_next_version($question->questionbankentryid);
