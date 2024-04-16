@@ -1,5 +1,10 @@
 # Change log for the Import question as new version question bank plugin
 
+## Changes in version 1.1
+
+* Provide compatibility with Moodle 4.3.
+* Fix a bug with importing Cloze questions.
+
 ## Changes in version 1.0
 
 * We are declaring this stable. (Has been used at the Open University for several months.)
