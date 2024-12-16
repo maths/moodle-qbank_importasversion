@@ -47,7 +47,11 @@ class import_as_version_action_column extends qbank_importasversion_column_paren
         $this->actionname = get_string('importasversion', 'qbank_importasversion');
     }
 
-    /** @return string The name of this plugin */
+    /**
+     * Returns the name of this plugin
+     * 
+     * @return string The name of this plugin
+     */
     public function get_name(): string {
         return 'importasversion';
     }
