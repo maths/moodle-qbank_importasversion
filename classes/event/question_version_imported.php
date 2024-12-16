@@ -37,13 +37,13 @@ use core\event\question_base;
  */
 class question_version_imported extends question_base {
 
-    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
+    #[\Override]
     protected function init() {
         parent::init();
         $this->data['crud'] = 'u';
     }
 
-    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
+    #[\Override]
     protected function validate_data() {
         parent::validate_data();
         if (!isset($this->other['questionbankentryid'])) {
@@ -54,24 +54,24 @@ class question_version_imported extends question_base {
         }
     }
 
-    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
+    #[\Override]
     public static function get_name() {
         return get_string('event:question_version_imported', 'qbank_importasversion');
     }
 
-    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
+    #[\Override]
     public function get_description() {
         return "The user with id '$this->userid' imported a new version " .
                 "'{$this->other['version']}' (question id '$this->objectid') of the " .
                 "question bank entry with id '{$this->other['questionbankentryid']}' in course '$this->courseid'.";
     }
 
-    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
+    #[\Override]
     public static function get_objectid_mapping() {
         return ['db' => 'question', 'restore' => 'question'];
     }
 
-    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
+    #[\Override]
     public static function get_other_mapping() {
         return [
             'questionbankentryid' => ['db' => 'question_bank_entries', 'restore' => 'question_bank_entries'],
