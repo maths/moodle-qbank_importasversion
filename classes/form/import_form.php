@@ -43,7 +43,7 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
  */
 class import_form extends moodleform {
 
-    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
+    #[\Override]
     protected function definition() {
         $mform = $this->_form;
 
@@ -107,7 +107,7 @@ class import_form extends moodleform {
         return $errors;
     }
 
-    // phpcs:ignore moodle.Commenting.MissingDocblock.Missing
+    #[\Override]
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $errors = $this->validate_uploaded_file($data, $errors);
