@@ -50,7 +50,6 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     require_login($cm->course, false, $cm);
     $context = context_module::instance($cmid);
     $urlparams['cmid'] = $cmid;
-
 } else {
     $courseid = required_param('courseid', PARAM_INT);
     require_login($courseid);
@@ -63,8 +62,11 @@ $PAGE->set_pagelayout('popup');
 question_require_capability_on($question, 'edit');
 
 // Page header.
-$title = get_string('importnewversionofx', 'qbank_importasversion',
-        format_string($question->name, true, ['context' => $context]));
+$title = get_string(
+    'importnewversionofx',
+    'qbank_importasversion',
+    format_string($question->name, true, ['context' => $context])
+);
 $PAGE->set_title($title);
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->activityheader->disable();
@@ -79,7 +81,6 @@ if ($importform->is_cancelled()) {
 
 // Handle to form being submitted.
 if ($fromform = $importform->get_data()) {
-
     $fromform->format = 'xml';
 
     // File checks out ok.

@@ -28,7 +28,6 @@ use context_course;
  * @covers    \qbank_importasversion\event\question_version_imported
  */
 final class events_test extends \advanced_testcase {
-
     public function test_imported_is_logged(): void {
         global $USER;
         $this->resetAfterTest();
@@ -60,8 +59,10 @@ final class events_test extends \advanced_testcase {
         $this->assertDebuggingNotCalled();
 
         $this->assertEquals('Question version imported', question_version_imported::get_name());
-        $this->assertEquals("The user with id '$USER->id' imported a new version '3' (question id '123') of the " .
+        $this->assertEquals(
+            "The user with id '$USER->id' imported a new version '3' (question id '123') of the " .
                 "question bank entry with id '45' in course '$course->id'.",
-                $event->get_description());
+            $event->get_description()
+        );
     }
 }
