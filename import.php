@@ -109,14 +109,34 @@ if ($fromform = $importform->get_data()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
     }
 
-    qbank_importasversion\importer::import_file($qformat, $question, $importfile);
+    $result = qbank_importasversion\importer::import_file($qformat, $question, $importfile);
 
     // In case anything needs to be done after.
     if (!$qformat->importpostprocess()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
     }
 
-    redirect($returnurl, get_string('questionimportedasversion', 'qbank_importasversion', format_string($question->name)));
+    if (!empty($result->error)) {
+        redirect($returnurl, get_string(
+            'questionimportfailed',
+            'qbank_importasversion',
+            ['name' => format_string($question->name),
+            'error' => format_string($result->error)]
+        ), null, \core\output\notification::NOTIFY_ERROR);
+    } else if (!empty($result->notice)) {
+        redirect($returnurl, get_string(
+            'questionimportedwithwarnings',
+            'qbank_importasversion',
+            ['name' => format_string($question->name),
+            'notice' => format_string($result->notice)]
+        ), null, \core\output\notification::NOTIFY_WARNING);
+    } else {
+        redirect($returnurl, get_string(
+            'questionimportedasversion',
+            'qbank_importasversion',
+            format_string($question->name)
+        ), null, \core\output\notification::NOTIFY_INFO);
+    }
     exit;
 }
 

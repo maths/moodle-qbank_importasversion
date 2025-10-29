@@ -46,30 +46,37 @@ class importer extends qformat_xml {
      * @param qformat_xml $qformat an instance of
      * @param question_definition $question the question to add a version to.
      * @param string $importedquestionfile filename of the file to import.
-     * @return bool true on success. False on failure.
+     * @return object|boolean Either a simple object with error and/or notice properties when there are issues
+     * or true on success.
      */
     public static function import_file(
         qformat_xml $qformat,
         question_definition $question,
         string $importedquestionfile
     ) {
-        global $USER, $DB, $OUTPUT;
+        global $USER, $DB;
 
         $context = context::instance_by_id($question->contextid);
 
         // STAGE 1: Parse the file.
         if (! $importedlines = $qformat->readdata($importedquestionfile)) {
-            throw new exception(get_string('cannotread', 'question'));
+            $result = new stdClass();
+            $result->error = get_string('cannotread', 'question');
+            return $result;
         }
 
         // Extract all the questions.
         if (!$importedquestions = $qformat->readquestions($importedlines)) {
-            throw new exception(get_string('noquestionsinfile', 'question'));
+            $result = new stdClass();
+            $result->error = get_string('noquestionsinfile', 'question');
+            return $result;
         }
 
         // Check if there's only one question in the file -- remove this once we do batch processing!
         if (count($importedquestions) != 1) {
-            throw new exception(get_string('toomanyquestionsinfile', 'qbank_importasversion'));
+            $result = new stdClass();
+            $result->error = get_string('toomanyquestionsinfile', 'qbank_importasversion');
+            return $result;
         }
 
         // Count number of questions processed.
@@ -166,11 +173,10 @@ class importer extends qformat_xml {
         }
 
         if (!empty($result->error)) {
-            echo $OUTPUT->notification($result->error);
             // Can't use $transaction->rollback(); since it requires an exception,
             // and I don't want to rewrite this code to change the error handling now.
             $DB->force_transaction_rollback();
-            return false;
+            return $result;
         }
 
         question_version_imported::create([
@@ -185,11 +191,19 @@ class importer extends qformat_xml {
 
         $transaction->allow_commit();
 
-        if (!empty($result->notice)) {
-            echo $OUTPUT->notification($result->notice);
-            return true;
+        if ($result === null) {
+            // Some question types don't have a return value when saving options.
+            // If it hasn't thrown an Exception then it's fine.
+            $result = true;
+        }
+        if ($result === false) {
+            // This probably shouldn't happen but given all the question types out there
+            // it's probably worth making sure we're handling it.
+            $result = new stdClass();
+            $result->error = get_string('unknownerror', 'qbank_importasversion');
+            return $result;
         }
 
-        return true;
+        return $result;
     }
 }
