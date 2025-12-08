@@ -33,4 +33,7 @@ $string['importnewversionofx'] = 'Import a new version of question {$a}';
 $string['pluginname'] = 'Import question as new version';
 $string['privacy:metadata'] = 'The Import question as new version question bank plugin does not store any personal data.';
 $string['questionimportedasversion'] = 'New version of question \'{$a}\' imported successfully.';
+$string['questionimportedwithwarnings'] = 'New version of question \'{$a->name}\' imported successfully. {$a->notice}';
+$string['questionimportfailed'] = 'Question import failed for \'{$a->name}\'. {$a->error}';
 $string['toomanyquestionsinfile'] = 'Your file did not contain exactly one question!';
+$string['unknownerror'] = 'There was an error saving the question.';

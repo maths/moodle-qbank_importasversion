@@ -50,7 +50,6 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     require_login($cm->course, false, $cm);
     $context = context_module::instance($cmid);
     $urlparams['cmid'] = $cmid;
-
 } else {
     $courseid = required_param('courseid', PARAM_INT);
     require_login($courseid);
@@ -63,8 +62,11 @@ $PAGE->set_pagelayout('popup');
 question_require_capability_on($question, 'edit');
 
 // Page header.
-$title = get_string('importnewversionofx', 'qbank_importasversion',
-        format_string($question->name, true, ['context' => $context]));
+$title = get_string(
+    'importnewversionofx',
+    'qbank_importasversion',
+    format_string($question->name, true, ['context' => $context])
+);
 $PAGE->set_title($title);
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->activityheader->disable();
@@ -79,7 +81,6 @@ if ($importform->is_cancelled()) {
 
 // Handle to form being submitted.
 if ($fromform = $importform->get_data()) {
-
     $fromform->format = 'xml';
 
     // File checks out ok.
@@ -109,14 +110,34 @@ if ($fromform = $importform->get_data()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
     }
 
-    qbank_importasversion\importer::import_file($qformat, $question, $importfile);
+    $result = qbank_importasversion\importer::import_file($qformat, $question, $importfile);
 
     // In case anything needs to be done after.
     if (!$qformat->importpostprocess()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
     }
 
-    redirect($returnurl, get_string('questionimportedasversion', 'qbank_importasversion', format_string($question->name)));
+    if (!empty($result->error)) {
+        redirect($returnurl, get_string(
+            'questionimportfailed',
+            'qbank_importasversion',
+            ['name' => format_string($question->name),
+            'error' => format_string($result->error)]
+        ), null, \core\output\notification::NOTIFY_ERROR);
+    } else if (!empty($result->notice)) {
+        redirect($returnurl, get_string(
+            'questionimportedwithwarnings',
+            'qbank_importasversion',
+            ['name' => format_string($question->name),
+            'notice' => format_string($result->notice)]
+        ), null, \core\output\notification::NOTIFY_WARNING);
+    } else {
+        redirect($returnurl, get_string(
+            'questionimportedasversion',
+            'qbank_importasversion',
+            format_string($question->name)
+        ), null, \core\output\notification::NOTIFY_INFO);
+    }
     exit;
 }
 
