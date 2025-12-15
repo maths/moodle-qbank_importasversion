@@ -1,6 +1,6 @@
 # Change log for the Import question as new version question bank plugin
 
-## Changes in version 1.3
+## Changes in version 1.4
 
 * Added import error message passthrough
 * Add verified compatibility with Moodle 5.1
