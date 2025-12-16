@@ -2,7 +2,8 @@
 
 ## Changes in version 1.4
 
-* Added import error message passthrough
+* Changed to default page style instead of popup style
+* Added pass through of error messages and notices during import
 * Add verified compatibility with Moodle 5.1
 
 ## Changes in version 1.3

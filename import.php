@@ -57,7 +57,6 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     $urlparams['courseid'] = $courseid;
 }
 $PAGE->set_url('/question/bank/importasversion/import.php', $urlparams);
-$PAGE->set_pagelayout('popup');
 
 question_require_capability_on($question, 'edit');
 
