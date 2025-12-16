@@ -16,12 +16,18 @@ Install from the Moodle plugins database https://moodle.org/plugins/qbank_import
 
 ### Install using git
 
-Or you can install using git. Type this commands in the root of your Moodle install
+Or you can install using git. For Moodle versions up to 5.0, type these commands in the root folder of your Moodle install:
 
     git clone https://github.com/maths/moodle-qbank_importasversion.git question/bank/importasversion
     echo /question/bank/importasversion/ >> .git/info/exclude
 
+Moodle 5.1 introduced a new folder structure. From the root folder, type these commands:
+
+    git clone https://github.com/maths/moodle-qbank_importasversion.git public/question/bank/importasversion
+    echo /public/question/bank/importasversion/ >> .git/info/exclude
+
 Then run the moodle update process
+
 Site administration > Notifications
 
 
