@@ -27,6 +27,7 @@ Moodle 5.1 introduced a new folder structure. From the root folder, type these c
     echo /public/question/bank/importasversion/ >> .git/info/exclude
 
 Then run the moodle update process
+
 Site administration > Notifications
 
 
