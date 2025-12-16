@@ -27,7 +27,6 @@ use core_question\local\bank\view;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plugin_feature extends plugin_features_base {
-
     #[\Override]
     public function get_question_actions(view $qbank): array {
         // This is what is used in Moodle 4.3+.

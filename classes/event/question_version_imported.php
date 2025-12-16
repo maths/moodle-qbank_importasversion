@@ -36,7 +36,6 @@ use core\event\question_base;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_version_imported extends question_base {
-
     #[\Override]
     protected function init() {
         parent::init();

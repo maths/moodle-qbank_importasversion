@@ -1,5 +1,11 @@
 # Change log for the Import question as new version question bank plugin
 
+## Changes in version 1.4
+
+* Changed to default page style instead of popup style
+* Added pass through of error messages and notices during import
+* Add verified compatibility with Moodle 5.1
+
 ## Changes in version 1.3
 
 * Add verified compatibility with Moodle 5.0
