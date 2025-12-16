@@ -44,3 +44,14 @@ Feature: Importing a question as a new version of an existing question
     Then I should see "New version of question 'Test question' imported successfully."
     And I should not see "The right answer is 'False'."
     And I should see "v2" in the "Updated question" "table_row"
+
+  @javascript @_file_upload
+  Scenario: Problems are displayed
+    When I am on the "Course 1" "core_question > course question bank" page logged in as teacher
+    And I choose "Import a new version" action for "Test question" in the question bank
+    And I upload "question/bank/importasversion/tests/fixtures/multiple-questions.xml" file to "Import" filemanager
+    And I press "Import"
+    Then I should see "Question import failed for 'Test question'."
+    And I should see "Your file did not contain exactly one question!"
+    And I should not see "The right answer is 'False'."
+    And I should see "v1" in the "Test question" "table_row"
