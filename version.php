@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'qbank_importasversion';
-$plugin->release = '1.4.0 for Moodle 4.0+';
-$plugin->version = 2025121600;
+$plugin->release = '1.5.1 for Moodle 4.0+';
+$plugin->version = 2026042100;
 $plugin->requires = 2022041900;
 $plugin->maturity = MATURITY_STABLE;
