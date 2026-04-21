@@ -1,0 +1,10 @@
+{
+	"name": "anst-i/moodle-qbank_importasversion",
+	"description": "A Moodle question bank plugin to import a single question from a Moodle XML file as a new version of an existing question, rather than a separate question",
+	"type": "moodle-qbank",
+	"require": {
+		"moodle/moodle": "^5.2",
+		"moodle/composer-installer": "*"
+	},
+	"license": "GPL-3.0-or-later"
+}
