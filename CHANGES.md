@@ -1,5 +1,9 @@
 # Change log for the Import question as new version question bank plugin
 
+## Changes in version 1.5.1
+
+* Fixed typo in `version.php`
+
 ## Changes in version 1.5
 
 * Add verified compatibility with Moodle 5.2
