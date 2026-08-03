@@ -56,7 +56,10 @@ class importer extends qformat_xml {
         global $USER, $DB;
 
         $context = context::instance_by_id($question->contextid);
-
+        $contexts = $qformat->contexts ?? [];
+        $contexts[] = $context;
+        $qformat->setContexts($contexts);
+        
         // STAGE 1: Parse the file.
         if (! $importedlines = $qformat->readdata($importedquestionfile)) {
             $result = new stdClass();
