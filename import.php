@@ -59,7 +59,7 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
 $thispageurl = new moodle_url('/question/bank/importasversion/import.php', $urlparams);
 $PAGE->set_url($thispageurl);
 
-// Update returnurl now that we know the context we are in
+// Update returnurl now that we know the context we are in.
 if (!$returnurl) {
     $returnurl = new moodle_url('/question/edit.php', ['courseid' => $COURSE->id]);
 }
