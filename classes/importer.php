@@ -170,50 +170,15 @@ class importer extends qformat_xml {
         $result = question_bank::get_qtype($newquestion->qtype)->save_question_options($newquestion);
 
         if (core_tag_tag::is_enabled('core_question', 'question')) {
-            // Is the current context we're importing in a course context?
-            $importingcontext = $context;
-            $importingcoursecontext = $importingcontext->get_course_context(false);
-            $isimportingcontextcourseoractivity = !empty($importingcoursecontext);
-
-            if (!empty($newquestion->coursetags)) {
-                if ($isimportingcontextcourseoractivity) {
-                    $mergedtags = array_merge($newquestion->coursetags, $newquestion->tags);
-
-                    core_tag_tag::set_item_tags(
-                        'core_question',
-                        'question',
-                        $newquestion->id,
-                        $newquestion->context,
-                        $mergedtags
-                    );
-                } else {
-                    core_tag_tag::set_item_tags(
-                        'core_question',
-                        'question',
-                        $newquestion->id,
-                        context_course::instance($qformat->course->id),
-                        $newquestion->coursetags
-                    );
-
-                    if (!empty($newquestion->tags)) {
-                        core_tag_tag::set_item_tags(
-                            'core_question',
-                            'question',
-                            $newquestion->id,
-                            $importingcontext,
-                            $newquestion->tags
-                        );
-                    }
-                }
-            } else if (!empty($newquestion->tags)) {
-                core_tag_tag::set_item_tags(
-                    'core_question',
-                    'question',
-                    $newquestion->id,
-                    $newquestion->context,
-                    $newquestion->tags
-                );
-            }
+            // Course tags on questions are deprecated; merge them into the question tags.
+            $mergedtags = array_merge($newquestion->coursetags ?? [], $newquestion->tags ?? []);
+            core_tag_tag::set_item_tags(
+                'core_question',
+                'question',
+                $newquestion->id,
+                $newquestion->context,
+                $mergedtags
+            );
         }
 
         if (!empty($result->error)) {
