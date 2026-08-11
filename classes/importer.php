@@ -59,7 +59,7 @@ class importer extends qformat_xml {
         $contexts = $qformat->contexts ?? [];
         $contexts[] = $context;
         $qformat->setContexts($contexts);
- 
+
         // STAGE 1: Parse the file.
         if (! $importedlines = $qformat->readdata($importedquestionfile)) {
             $result = new stdClass();
