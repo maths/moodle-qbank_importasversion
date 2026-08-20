@@ -20,6 +20,7 @@ use context;
 use context_course;
 use core_question\local\bank\question_version_status;
 use core_tag_tag;
+use core_text;
 use exception;
 use qbank_importasversion\event\question_version_imported;
 use qformat_xml;
@@ -45,13 +46,16 @@ class importer extends qformat_xml {
      * @param qformat_xml $qformat an instance of
      * @param question_definition $question the question to add a version to.
      * @param string $importedquestionfile filename of the file to import.
+     * @param bool $mergetags if true, union the file's tags with the replaced version's
+     *      question-scoped tags instead of only using the file's tags.
      * @return object|boolean Either a simple object with error and/or notice properties when there are issues
      * or true on success.
      */
     public static function import_file(
         qformat_xml $qformat,
         question_definition $question,
-        string $importedquestionfile
+        string $importedquestionfile,
+        bool $mergetags = false
     ) {
         global $USER, $DB;
 
@@ -166,6 +170,13 @@ class importer extends qformat_xml {
 
         $result = question_bank::get_qtype($newquestion->qtype)->save_question_options($newquestion);
 
+        if ($mergetags) {
+            $newquestion->tags = self::merge_tagnames(
+                $newquestion->tags ?? [],
+                self::get_replaced_version_tagnames($question)
+            );
+        }
+
         if (core_tag_tag::is_enabled('core_question', 'question')) {
             // Is the current context we're importing in a course context?
             $importingcontext = $context;
@@ -246,5 +257,63 @@ class importer extends qformat_xml {
         }
 
         return $result;
+    }
+
+    /**
+     * Union a file's tag names with the replaced version's tag names.
+     *
+     * The file's tags are kept in order first, followed by any of the existing
+     * tags whose case-insensitive form is not already present in the file's tags.
+     *
+     * @param array $filetags tag names from the imported file.
+     * @param array $existingtagnames tag names from the replaced version.
+     * @return array the merged, de-duplicated (case-insensitively) list of tag names.
+     */
+    protected static function merge_tagnames(array $filetags, array $existingtagnames): array {
+        $merged = $filetags;
+        $lowerfiletags = array_map(['core_text', 'strtolower'], $filetags);
+
+        foreach ($existingtagnames as $existingtagname) {
+            if (!in_array(core_text::strtolower($existingtagname), $lowerfiletags, true)) {
+                $merged[] = $existingtagname;
+                $lowerfiletags[] = core_text::strtolower($existingtagname);
+            }
+        }
+
+        return array_values($merged);
+    }
+
+    /**
+     * Get the question-scoped tag names of the version being replaced.
+     *
+     * Classifies each tag instance into: the question's own context (kept),
+     * a course context that is not the question's own context (skipped, as
+     * these are "course tags" managed separately), or any other context
+     * (kept, as a legacy mis-contexted instance).
+     *
+     * @param question_definition $question the question being replaced.
+     * @return array the raw tag names to carry over.
+     */
+    protected static function get_replaced_version_tagnames(question_definition $question): array {
+        if (!core_tag_tag::is_enabled('core_question', 'question')) {
+            return [];
+        }
+
+        $tagnames = [];
+        $tagobjects = core_tag_tag::get_item_tags('core_question', 'question', $question->id);
+        foreach ($tagobjects as $tagobject) {
+            if ($tagobject->taginstancecontextid == $question->contextid) {
+                // The question's own context: an ordinary tag.
+                $tagnames[] = $tagobject->rawname;
+            } else if (context::instance_by_id($tagobject->taginstancecontextid)->contextlevel == CONTEXT_COURSE) {
+                // A course-level "course tag": not part of the question's own tags.
+                continue;
+            } else {
+                // A legacy mis-contexted instance: treat as an ordinary tag.
+                $tagnames[] = $tagobject->rawname;
+            }
+        }
+
+        return $tagnames;
     }
 }
