@@ -185,7 +185,7 @@ class importer extends qformat_xml {
 
             if (!empty($newquestion->coursetags)) {
                 if ($isimportingcontextcourseoractivity) {
-                    $mergedtags = array_merge($newquestion->coursetags, $newquestion->tags);
+                    $mergedtags = array_merge($newquestion->coursetags, $newquestion->tags ?? []);
 
                     core_tag_tag::set_item_tags(
                         'core_question',
@@ -264,23 +264,26 @@ class importer extends qformat_xml {
      *
      * The file's tags are kept in order first, followed by any of the existing
      * tags whose case-insensitive form is not already present in the file's tags.
+     * Any internal duplicates (case-insensitively) or surrounding whitespace are cleaned up.
      *
      * @param array $filetags tag names from the imported file.
      * @param array $existingtagnames tag names from the replaced version.
      * @return array the merged, de-duplicated (case-insensitively) list of tag names.
      */
     protected static function merge_tagnames(array $filetags, array $existingtagnames): array {
-        $merged = $filetags;
-        $lowerfiletags = array_map(['core_text', 'strtolower'], $filetags);
+        $merged = [];
+        $seenlower = [];
 
-        foreach ($existingtagnames as $existingtagname) {
-            if (!in_array(core_text::strtolower($existingtagname), $lowerfiletags, true)) {
-                $merged[] = $existingtagname;
-                $lowerfiletags[] = core_text::strtolower($existingtagname);
+        foreach (array_merge($filetags, $existingtagnames) as $tagname) {
+            $trimmed = trim((string) $tagname);
+            $lower = core_text::strtolower($trimmed);
+            if ($lower !== '' && !isset($seenlower[$lower])) {
+                $seenlower[$lower] = true;
+                $merged[] = $trimmed;
             }
         }
 
-        return array_values($merged);
+        return $merged;
     }
 
     /**

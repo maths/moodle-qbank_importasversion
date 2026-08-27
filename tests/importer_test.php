@@ -125,13 +125,144 @@ final class importer_test extends \advanced_testcase {
         $this->assertEqualsCanonicalizing(['file-tag', 'source-tag'], $this->tagnames_of($newid));
     }
 
-    public function test_merge_tagnames(): void {
+    /**
+     * Test merge_tagnames with multiple tags, mixed casing, and overlapping items.
+     */
+    public function test_merge_tagnames_with_complex_overlap(): void {
         $method = new ReflectionMethod(importer::class, 'merge_tagnames');
+        $method->setAccessible(true);
 
-        $this->assertCount(1, $method->invoke(null, ['Algebra'], ['algebra']));
-        $this->assertSame(['a'], $method->invoke(null, [], ['a']));
-        $this->assertSame(['a'], $method->invoke(null, ['a'], []));
-        $this->assertSame(['File', 'existing'], $method->invoke(null, ['File'], ['existing']));
+        $filetags = ['Maths', 'algebra', 'GEOMETRY', 'file-unique', 'maths', '  algebra  '];
+        $existingtags = ['ALGEBRA', 'geometry', 'Trigonometry', 'existing-unique', '  Trigonometry  '];
+
+        // Expectation:
+        // 1. File tags come first in their original order and casing, deduplicated case-insensitively.
+        // 2. Overlapping tags ('algebra' / 'GEOMETRY') keep the file version's casing.
+        // 3. Unique existing tags ('Trigonometry', 'existing-unique') are appended at the end.
+        $expected = [
+            'Maths',
+            'algebra',
+            'GEOMETRY',
+            'file-unique',
+            'Trigonometry',
+            'existing-unique',
+        ];
+
+        $this->assertSame($expected, $method->invoke(null, $filetags, $existingtags));
+    }
+
+    /**
+     * Test import merge when both the imported file and the existing question have multiple tags with overlap.
+     */
+    public function test_merge_both_versions_multiple_tags_with_overlap(): void {
+        $this->setAdminUser();
+        [$course, $question] = $this->create_source_question();
+
+        $sourcetags = ['ALGEBRA', 'geometry', 'Trigonometry', 'existing-unique'];
+        foreach ($sourcetags as $tag) {
+            $this->add_tag($question, $tag);
+        }
+
+        $qformat = $this->make_qformat($course);
+        $result = importer::import_file($qformat, $question, $this->fixture('merge-complex-tags.xml'), true);
+
+        $this->assertTrue($result === true || empty($result->error));
+        $newid = end($qformat->questionids);
+
+        // Note: The ordering strictly preserves file tags first, followed by unique existing tags.
+        // For overlapping tags, Moodle's core_tag_tag reuses the existing {tag} records in the DB,
+        // which retain the rawname with which they were originally registered.
+        $expected = [
+            'Maths',
+            'ALGEBRA',
+            'geometry',
+            'file-unique',
+            'Trigonometry',
+            'existing-unique',
+        ];
+        $this->assertSame($expected, $this->tagnames_of($newid));
+    }
+
+    /**
+     * Test merge_tagnames when the imported file has no tags.
+     */
+    public function test_merge_tagnames_empty_file_tags(): void {
+        $method = new ReflectionMethod(importer::class, 'merge_tagnames');
+        $method->setAccessible(true);
+
+        $filetags = [];
+        $existingtags = ['algebra', 'GEOMETRY', 'algebra'];
+
+        // All unique existing tags should be preserved.
+        $expected = ['algebra', 'GEOMETRY'];
+
+        $this->assertSame($expected, $method->invoke(null, $filetags, $existingtags));
+    }
+
+    /**
+     * Data provider for testing various complex tag merge scenarios.
+     *
+     * @return array
+     */
+    public static function complex_tag_merge_provider(): array {
+        return [
+            'Case variation overlap' => [
+                'sourcetags' => ['FILE-TAG', 'Existing-1'],
+                'expected'   => ['FILE-TAG', 'Existing-1'],
+            ],
+            'Tags with spaces and symbols' => [
+                'sourcetags' => ['unit 1: algebra', 'c++', 'file-tag'],
+                'expected'   => ['file-tag', 'unit 1: algebra', 'c++'],
+            ],
+            'Complete overlap across all tags' => [
+                'sourcetags' => ['FILE-TAG', 'file-tag'],
+                'expected'   => ['FILE-TAG'],
+            ],
+            'Source question has no existing tags' => [
+                'sourcetags' => [],
+                'expected'   => ['file-tag'],
+            ],
+            'Multiple source tags with unique casing' => [
+                'sourcetags' => ['Alpha', 'BETA', 'gamma', 'file-tag'],
+                'expected'   => ['file-tag', 'Alpha', 'BETA', 'gamma'],
+            ],
+            'Multibyte accented character overlap' => [
+                'sourcetags' => ['RÉSUMÉ', 'résumé', 'maths'],
+                'expected'   => ['file-tag', 'RÉSUMÉ', 'maths'],
+            ],
+            'Internal duplicates within existing tags' => [
+                'sourcetags' => ['Physics', 'physics', 'PHYSICS'],
+                'expected'   => ['file-tag', 'Physics'],
+            ],
+            'Numeric string tags' => [
+                'sourcetags' => ['2026', '101', '100'],
+                'expected'   => ['file-tag', '2026', '101', '100'],
+            ],
+        ];
+    }
+
+    /**
+     * Test import merge across multiple edge cases using data provider.
+     *
+     * @dataProvider complex_tag_merge_provider
+     * @param array $sourcetags
+     * @param array $expected
+     */
+    public function test_merge_tags_integration_scenarios(array $sourcetags, array $expected): void {
+        $this->setAdminUser();
+        [$course, $question] = $this->create_source_question();
+
+        foreach ($sourcetags as $tag) {
+            $this->add_tag($question, $tag);
+        }
+
+        $qformat = $this->make_qformat($course);
+        $result = importer::import_file($qformat, $question, $this->fixture('merge-source-tagged.xml'), true);
+
+        $this->assertTrue($result === true || empty($result->error));
+        $newid = end($qformat->questionids);
+
+        $this->assertSame($expected, $this->tagnames_of($newid));
     }
 
     public function test_course_level_bank_keeps_own_tags(): void {

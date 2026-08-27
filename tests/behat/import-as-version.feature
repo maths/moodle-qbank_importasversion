@@ -24,6 +24,12 @@ Feature: Importing a question as a new version of an existing question
       | question      | tag        |
       | Test question | source-tag |
 
+  Scenario: The import process can be cancelled
+    When I am on the "Course 1" "core_question > course question bank" page logged in as teacher
+    And I choose "Import a new version" action for "Test question" in the question bank
+    And I press "Cancel"
+    Then I should see "v1" in the "Test question" "table_row"
+
   @javascript @_file_upload
   Scenario: Question can be imported as a new version
     When I am on the "Course 1" "core_question > course question bank" page logged in as teacher
