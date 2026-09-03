@@ -68,7 +68,18 @@ class import_form extends moodleform {
         $mform->setType('returnurl', PARAM_LOCALURL);
 
         // Submit and cancel buttons.
-        $this->add_action_buttons(true, get_string('import'));
+        $buttonarray = [];
+        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('import'));
+        if (\core_tag_tag::is_enabled('core_question', 'question')) {
+            $buttonarray[] = $mform->createElement(
+                'submit',
+                'mergetagsbutton',
+                get_string('importandmergetags', 'qbank_importasversion')
+            );
+        }
+        $buttonarray[] = $mform->createElement('cancel');
+        $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
+        $mform->closeHeaderBefore('buttonar');
     }
 
     /**
