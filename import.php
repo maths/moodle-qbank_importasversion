@@ -61,11 +61,7 @@ $PAGE->set_url($thispageurl);
 
 // Update returnurl now that we know the context we are in.
 if (!$returnurl) {
-    if ($cmid) {
-        $returnurl = new moodle_url('/question/edit.php', ['cmid' => $cmid]);
-    } else {
-        $returnurl = new moodle_url('/question/edit.php', ['courseid' => $COURSE->id]);
-    }
+    $returnurl = new moodle_url('/question/edit.php', ['cmid' => $cmid]);
 }
 
 question_require_capability_on($question, 'edit');
