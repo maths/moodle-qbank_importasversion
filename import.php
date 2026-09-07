@@ -56,7 +56,13 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     $context = context_course::instance($courseid);
     $urlparams['courseid'] = $courseid;
 }
-$PAGE->set_url('/question/bank/importasversion/import.php', $urlparams);
+$thispageurl = new moodle_url('/question/bank/importasversion/import.php', $urlparams);
+$PAGE->set_url($thispageurl);
+
+// Update returnurl now that we know the context we are in.
+if (!$returnurl) {
+    $returnurl = new moodle_url('/question/edit.php', ['cmid' => $cmid]);
+}
 
 question_require_capability_on($question, 'edit');
 
