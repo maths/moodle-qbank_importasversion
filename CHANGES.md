@@ -1,5 +1,10 @@
 # Change log for the Import question as new version question bank plugin
 
+## Changes in version 1.6
+
+* Added proper context handling during question import
+* Various code quality improvements dealing with edge cases
+
 ## Changes in version 1.5.1
 
 * Fixed typo in `version.php`
