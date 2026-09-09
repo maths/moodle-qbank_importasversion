@@ -84,6 +84,15 @@ class importer extends qformat_xml {
         // For now, single question.
         $importedquestion = $importedquestions[0];
 
+        // Some question types retain invalid XML with diagnostics so it can be repaired after a
+        // normal import. Do not publish that content as the Ready version of an existing question.
+        // Reject before creating records, importing files, or triggering an import event.
+        if (!empty($importedquestion->validationerrors)) {
+            $result = new stdClass();
+            $result->error = $importedquestion->validationerrors;
+            return $result;
+        }
+
         $transaction = $DB->start_delegated_transaction();
 
         $count++;

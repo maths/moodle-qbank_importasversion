@@ -1,5 +1,10 @@
 # Change log for the Import question as new version question bank plugin
 
+## Unreleased
+
+* Reject question-type validation errors before importing a new version, preserving the existing
+  question version instead of publishing invalid content as Ready.
+
 ## Changes in version 1.5.1
 
 * Fixed typo in `version.php`
