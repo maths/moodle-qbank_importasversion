@@ -55,6 +55,11 @@ class import_form extends moodleform {
         );
         $mform->addRule('newfile', null, 'required', null, 'client');
 
+        $mform->addElement('advcheckbox', 'force', get_string('forceimport', 'qbank_importasversion'));
+        $mform->addHelpButton('force', 'forceimport', 'qbank_importasversion');
+        $mform->setDefault('force', 0);
+        $mform->setType('force', PARAM_BOOL);
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
