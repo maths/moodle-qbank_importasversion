@@ -37,3 +37,9 @@ $string['questionimportedwithwarnings'] = 'New version of question \'{$a->name}\
 $string['questionimportfailed'] = 'Question import failed for \'{$a->name}\'. {$a->error}';
 $string['toomanyquestionsinfile'] = 'Your file did not contain exactly one question!';
 $string['unknownerror'] = 'There was an error saving the question.';
+
+$string['forceimport'] = 'Import invalid question as draft for repair';
+$string['forceimport_help'] = 'By default, question-type validation errors stop the import. Enable this only to keep a repairable invalid question as a draft version. Diagnostics remain visible and the existing ready version is not replaced. Invalid XML, unreadable question structures and save failures cannot be overridden.';
+$string['invalidimportedfordraftrepair'] = 'The invalid question was imported as a draft for repair. The existing ready version was not replaced.';
+
+$string['importparseerrors'] = 'The file could not be read without parsing errors. Correct the file before importing; this error cannot be overridden.';

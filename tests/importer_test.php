@@ -69,8 +69,9 @@ final class importer_test extends \advanced_testcase {
      *
      * @dataProvider stack_input_types
      * @param string $type STACK input type.
+     * @param bool $force Whether to retain the invalid question as a draft.
      */
-    public function test_stack_missing_validation_does_not_replace_ready_version(string $type): void {
+    public function test_stack_missing_validation_does_not_replace_ready_version(string $type, bool $force = false): void {
         global $DB, $CFG, $PAGE;
         if (!is_dir($CFG->dirroot . '/question/type/stack')) {
             $this->markTestSkipped('Optional integration test requires STACK.');
@@ -96,8 +97,20 @@ final class importer_test extends \advanced_testcase {
         $format->displayprogress = false;
         $before = $DB->get_records('question_versions', ['questionbankentryid' => $question->questionbankentryid]);
         $questions = $DB->count_records('question');
-        $result = importer::import_file($format, $question, $file);
+        $result = importer::import_file($format, $question, $file, $force);
         $after = $DB->get_records('question_versions', ['questionbankentryid' => $question->questionbankentryid]);
+        if ($force) {
+            $newversions = array_values(array_diff_key($after, $before));
+            $this->assertCount(1, $newversions);
+            $this->assertEquals('draft', $newversions[0]->status);
+            $this->assertEquals(1, $DB->get_field('qtype_stack_options', 'isbroken',
+                ['questionid' => $newversions[0]->questionid]));
+            $this->assertStringContainsString('[[validation:ans1]]', $result->notice);
+            foreach ($before as $id => $version) {
+                $this->assertEquals($version, $after[$id]);
+            }
+            return;
+        }
         $this->assertEquals($before, $after, 'Invalid import must not create a new Ready version.');
         $this->assertEquals($questions, $DB->count_records('question'));
         $this->assertNotEmpty($result->error ?? null);
@@ -115,6 +128,7 @@ final class importer_test extends \advanced_testcase {
             'boolean' => ['boolean'],
             'checkbox' => ['checkbox'],
             'dropdown' => ['dropdown'],
+            'dropdown forced draft' => ['dropdown', true],
             'equiv' => ['equiv'],
             'freetext' => ['freetext'],
             'geogebra' => ['geogebra'],
@@ -130,6 +144,118 @@ final class importer_test extends \advanced_testcase {
             'units' => ['units'],
             'varmatrix' => ['varmatrix'],
         ];
+    }
+
+    /** Explicit forcing retains invalid content as a draft, with diagnostics. */
+    public function test_force_imports_validation_errors_as_draft(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $category = $generator->create_question_category();
+        $data = $generator->create_question('truefalse', null, ['category' => $category->id]);
+        $question = \question_bank::load_question($data->id);
+        $format = new class extends \qformat_xml {
+            /** @inheritDoc */
+            public function readquestions($lines) {
+                $questions = parent::readquestions($lines);
+                $questions[0]->validationerrors = 'Repairable authoring error';
+                return $questions;
+            }
+        };
+        $format->displayprogress = false;
+        $result = importer::import_file($format, $question, __DIR__ . '/fixtures/edited-true-false-question.xml', true);
+        $this->assertEmpty($result->error ?? null);
+        $this->assertStringContainsString('Repairable authoring error', $result->notice);
+        $versions = array_values($DB->get_records('question_versions',
+            ['questionbankentryid' => $question->questionbankentryid], 'version'));
+        $this->assertCount(2, $versions);
+        $this->assertEquals('ready', $versions[0]->status);
+        $this->assertEquals($question->id, $versions[0]->questionid);
+        $this->assertEquals('draft', $versions[1]->status);
+    }
+
+    /** Even explicit forcing must not save a structurally unreadable question. */
+    public function test_force_does_not_override_structural_errors(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $category = $generator->create_question_category();
+        $data = $generator->create_question('truefalse', null, ['category' => $category->id]);
+        $question = \question_bank::load_question($data->id);
+        $format = new class extends \qformat_xml {
+            /** @inheritDoc */
+            public function readquestions($lines) {
+                $questions = parent::readquestions($lines);
+                $questions[0]->validationerrors = 'Unreadable structure';
+                $questions[0]->structuralerror = true;
+                return $questions;
+            }
+        };
+        $format->displayprogress = false;
+        $before = $DB->count_records('question_versions');
+        $result = importer::import_file($format, $question, __DIR__ . '/fixtures/edited-true-false-question.xml', true);
+        $this->assertStringContainsString('Unreadable structure', $result->error);
+        $this->assertEquals($before, $DB->count_records('question_versions'));
+    }
+
+    /** Force must not turn a failed question-type save into committed records. */
+    public function test_force_does_not_commit_a_false_save_result(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->preventResetByRollback();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $category = $generator->create_question_category();
+        $data = $generator->create_question('truefalse', null, ['category' => $category->id]);
+        $question = \question_bank::load_question($data->id);
+        $property = new \ReflectionProperty(\question_bank::class, 'questiontypes');
+        $property->setAccessible(true);
+        $original = $property->getValue();
+        $types = $original;
+        $types['truefalse'] = $this->getMockBuilder(\qtype_truefalse::class)
+            ->onlyMethods(['save_question_options'])->getMock();
+        $types['truefalse']->expects($this->once())->method('save_question_options')->willReturn(false);
+        $property->setValue(null, $types);
+        $format = new \qformat_xml();
+        $format->displayprogress = false;
+        $before = $DB->count_records('question');
+        $versions = $DB->count_records('question_versions');
+        try {
+            $result = importer::import_file($format, $question,
+                __DIR__ . '/fixtures/edited-true-false-question.xml', true);
+        } finally {
+            $property->setValue(null, $original);
+        }
+        $this->assertNotEmpty($result->error ?? null);
+        $this->assertEquals($before, $DB->count_records('question'));
+        $this->assertEquals($versions, $DB->count_records('question_versions'));
+    }
+
+    /** A parser error cannot be ignored even if one usable question was recovered. */
+    public function test_force_does_not_override_parser_errors(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $category = $generator->create_question_category();
+        $data = $generator->create_question('truefalse', null, ['category' => $category->id]);
+        $question = \question_bank::load_question($data->id);
+        $format = new class extends \qformat_xml {
+            /** @inheritDoc */
+            public function readquestions($lines) {
+                $questions = parent::readquestions($lines);
+                $this->importerrors++;
+                return $questions;
+            }
+        };
+        $format->displayprogress = false;
+        $before = $DB->count_records('question_versions');
+        $result = importer::import_file($format, $question,
+            __DIR__ . '/fixtures/edited-true-false-question.xml', true);
+        $this->assertNotEmpty($result->error ?? null);
+        $this->assertEquals($before, $DB->count_records('question_versions'));
     }
 
     /** Valid imports retain their existing version-creation behavior. */

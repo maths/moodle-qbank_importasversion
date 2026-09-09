@@ -45,13 +45,15 @@ class importer extends qformat_xml {
      * @param qformat_xml $qformat an instance of
      * @param question_definition $question the question to add a version to.
      * @param string $importedquestionfile filename of the file to import.
+     * @param bool $force Import repairable validation failures as a draft version, retaining diagnostics.
      * @return object|boolean Either a simple object with error and/or notice properties when there are issues
      * or true on success.
      */
     public static function import_file(
         qformat_xml $qformat,
         question_definition $question,
-        string $importedquestionfile
+        string $importedquestionfile,
+        bool $force = false
     ) {
         global $USER, $DB;
 
@@ -84,10 +86,19 @@ class importer extends qformat_xml {
         // For now, single question.
         $importedquestion = $importedquestions[0];
 
+        // A repairable question-type diagnostic may also increment the format's error count.
+        // Any additional parser error means the input was not read completely and cannot be forced.
+        $validationerrorcount = !empty($importedquestion->validationerrors) ? 1 : 0;
+        if ($qformat->importerrors > $validationerrorcount) {
+            $result = new stdClass();
+            $result->error = get_string('importparseerrors', 'qbank_importasversion');
+            return $result;
+        }
+
         // Some question types retain invalid XML with diagnostics so it can be repaired after a
         // normal import. Do not publish that content as the Ready version of an existing question.
         // Reject before creating records, importing files, or triggering an import event.
-        if (!empty($importedquestion->validationerrors)) {
+        if (!empty($importedquestion->validationerrors) && (!$force || !empty($importedquestion->structuralerror))) {
             $result = new stdClass();
             $result->error = $importedquestion->validationerrors;
             return $result;
@@ -122,7 +133,9 @@ class importer extends qformat_xml {
         $questionversion->questionbankentryid = $question->questionbankentryid;
         $questionversion->questionid = $newquestion->id;
         $questionversion->version = get_next_version($question->questionbankentryid);
-        $questionversion->status = question_version_status::QUESTION_STATUS_READY; // TODO: Give an option on the form.
+        $questionversion->status = !empty($importedquestion->validationerrors)
+            ? question_version_status::QUESTION_STATUS_DRAFT
+            : question_version_status::QUESTION_STATUS_READY;
         $questionversion->id = $DB->insert_record('question_versions', $questionversion);
 
         if (isset($newquestion->questiontextitemid)) {
@@ -174,6 +187,12 @@ class importer extends qformat_xml {
         // Now to save all the answers and type-specific options.
 
         $result = question_bank::get_qtype($newquestion->qtype)->save_question_options($newquestion);
+
+        // Treat a false save result as an error before the transaction can commit, including in force mode.
+        if ($result === false) {
+            $result = new stdClass();
+            $result->error = get_string('unknownerror', 'qbank_importasversion');
+        }
 
         if (core_tag_tag::is_enabled('core_question', 'question')) {
             // Is the current context we're importing in a course context?
@@ -246,12 +265,12 @@ class importer extends qformat_xml {
             // If it hasn't thrown an Exception then it's fine.
             $result = true;
         }
-        if ($result === false) {
-            // This probably shouldn't happen but given all the question types out there
-            // it's probably worth making sure we're handling it.
-            $result = new stdClass();
-            $result->error = get_string('unknownerror', 'qbank_importasversion');
-            return $result;
+        if ($force && !empty($importedquestion->validationerrors)) {
+            if ($result === true) {
+                $result = new stdClass();
+            }
+            $result->notice = get_string('invalidimportedfordraftrepair', 'qbank_importasversion') . '<br>' .
+                $importedquestion->validationerrors;
         }
 
         return $result;
