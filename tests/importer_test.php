@@ -29,7 +29,9 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
  * @covers \qbank_importasversion\importer
  */
 final class importer_test extends \advanced_testcase {
-    /** Invalid parsed content must not produce a new version or import event. */
+    /**
+     * Invalid parsed content must not produce a new version or import event.
+     */
     public function test_rejects_question_type_validation_errors_before_creating_version(): void {
         global $DB;
         $this->resetAfterTest();
@@ -103,8 +105,11 @@ final class importer_test extends \advanced_testcase {
             $newversions = array_values(array_diff_key($after, $before));
             $this->assertCount(1, $newversions);
             $this->assertEquals('draft', $newversions[0]->status);
-            $this->assertEquals(1, $DB->get_field('qtype_stack_options', 'isbroken',
-                ['questionid' => $newversions[0]->questionid]));
+            $this->assertEquals(1, $DB->get_field(
+                'qtype_stack_options',
+                'isbroken',
+                ['questionid' => $newversions[0]->questionid]
+            ));
             $this->assertStringContainsString('[[validation:ans1]]', $result->notice);
             foreach ($before as $id => $version) {
                 $this->assertEquals($version, $after[$id]);
@@ -146,7 +151,11 @@ final class importer_test extends \advanced_testcase {
         ];
     }
 
-    /** Explicit forcing retains invalid content as a draft, with diagnostics. */
+    /**
+
+     * Explicit forcing retains invalid content as a draft, with diagnostics.
+
+     */
     public function test_force_imports_validation_errors_as_draft(): void {
         global $DB;
         $this->resetAfterTest();
@@ -156,7 +165,12 @@ final class importer_test extends \advanced_testcase {
         $data = $generator->create_question('truefalse', null, ['category' => $category->id]);
         $question = \question_bank::load_question($data->id);
         $format = new class extends \qformat_xml {
-            /** @inheritDoc */
+            /**
+             * Return parsed data with the failure exercised by this test.
+             *
+             * @param array $lines XML input lines.
+             * @return array Parsed question definitions.
+             */
             public function readquestions($lines) {
                 $questions = parent::readquestions($lines);
                 $questions[0]->validationerrors = 'Repairable authoring error';
@@ -167,15 +181,22 @@ final class importer_test extends \advanced_testcase {
         $result = importer::import_file($format, $question, __DIR__ . '/fixtures/edited-true-false-question.xml', true);
         $this->assertEmpty($result->error ?? null);
         $this->assertStringContainsString('Repairable authoring error', $result->notice);
-        $versions = array_values($DB->get_records('question_versions',
-            ['questionbankentryid' => $question->questionbankentryid], 'version'));
+        $versions = array_values($DB->get_records(
+            'question_versions',
+            ['questionbankentryid' => $question->questionbankentryid],
+            'version'
+        ));
         $this->assertCount(2, $versions);
         $this->assertEquals('ready', $versions[0]->status);
         $this->assertEquals($question->id, $versions[0]->questionid);
         $this->assertEquals('draft', $versions[1]->status);
     }
 
-    /** Even explicit forcing must not save a structurally unreadable question. */
+    /**
+
+     * Even explicit forcing must not save a structurally unreadable question.
+
+     */
     public function test_force_does_not_override_structural_errors(): void {
         global $DB;
         $this->resetAfterTest();
@@ -185,7 +206,12 @@ final class importer_test extends \advanced_testcase {
         $data = $generator->create_question('truefalse', null, ['category' => $category->id]);
         $question = \question_bank::load_question($data->id);
         $format = new class extends \qformat_xml {
-            /** @inheritDoc */
+            /**
+             * Return parsed data with the failure exercised by this test.
+             *
+             * @param array $lines XML input lines.
+             * @return array Parsed question definitions.
+             */
             public function readquestions($lines) {
                 $questions = parent::readquestions($lines);
                 $questions[0]->validationerrors = 'Unreadable structure';
@@ -200,7 +226,11 @@ final class importer_test extends \advanced_testcase {
         $this->assertEquals($before, $DB->count_records('question_versions'));
     }
 
-    /** Force must not turn a failed question-type save into committed records. */
+    /**
+
+     * Force must not turn a failed question-type save into committed records.
+
+     */
     public function test_force_does_not_commit_a_false_save_result(): void {
         global $DB;
         $this->resetAfterTest();
@@ -223,8 +253,12 @@ final class importer_test extends \advanced_testcase {
         $before = $DB->count_records('question');
         $versions = $DB->count_records('question_versions');
         try {
-            $result = importer::import_file($format, $question,
-                __DIR__ . '/fixtures/edited-true-false-question.xml', true);
+            $result = importer::import_file(
+                $format,
+                $question,
+                __DIR__ . '/fixtures/edited-true-false-question.xml',
+                true
+            );
         } finally {
             $property->setValue(null, $original);
         }
@@ -233,7 +267,11 @@ final class importer_test extends \advanced_testcase {
         $this->assertEquals($versions, $DB->count_records('question_versions'));
     }
 
-    /** A parser error cannot be ignored even if one usable question was recovered. */
+    /**
+
+     * A parser error cannot be ignored even if one usable question was recovered.
+
+     */
     public function test_force_does_not_override_parser_errors(): void {
         global $DB;
         $this->resetAfterTest();
@@ -243,7 +281,12 @@ final class importer_test extends \advanced_testcase {
         $data = $generator->create_question('truefalse', null, ['category' => $category->id]);
         $question = \question_bank::load_question($data->id);
         $format = new class extends \qformat_xml {
-            /** @inheritDoc */
+            /**
+             * Return parsed data with the failure exercised by this test.
+             *
+             * @param array $lines XML input lines.
+             * @return array Parsed question definitions.
+             */
             public function readquestions($lines) {
                 $questions = parent::readquestions($lines);
                 $this->importerrors++;
@@ -252,13 +295,21 @@ final class importer_test extends \advanced_testcase {
         };
         $format->displayprogress = false;
         $before = $DB->count_records('question_versions');
-        $result = importer::import_file($format, $question,
-            __DIR__ . '/fixtures/edited-true-false-question.xml', true);
+        $result = importer::import_file(
+            $format,
+            $question,
+            __DIR__ . '/fixtures/edited-true-false-question.xml',
+            true
+        );
         $this->assertNotEmpty($result->error ?? null);
         $this->assertEquals($before, $DB->count_records('question_versions'));
     }
 
-    /** Valid imports retain their existing version-creation behavior. */
+    /**
+
+     * Valid imports retain their existing version-creation behavior.
+
+     */
     public function test_valid_question_still_creates_new_version(): void {
         global $DB;
         $this->resetAfterTest();
