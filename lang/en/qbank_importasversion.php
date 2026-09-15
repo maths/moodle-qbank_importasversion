@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $string['event:question_version_imported'] = 'Question version imported';
 $string['forceimport'] = 'Import with warnings as Draft';
 $string['forceimport_help'] = 'By default, question-type save warnings stop this upload. Enable this option to retain a version with warnings as Draft for review or repair, leaving existing versions unchanged. Imports without warnings are still saved as Ready. Save errors cannot be overridden.';
+$string['importandmergetags'] = 'Import and merge tags';
 $string['importasversion'] = 'Import a new version';
 $string['importasversion_help'] = 'Imports a question from a file but creates a new version of an existing question';
 $string['importedwithwarningsasdraft'] = 'The new version was imported as Draft for review or repair.';

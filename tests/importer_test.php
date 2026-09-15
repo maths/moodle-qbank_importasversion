@@ -89,6 +89,7 @@ final class importer_test extends \advanced_testcase {
             $this->format,
             $this->question,
             __DIR__ . '/fixtures/edited-true-false-question.xml',
+            false,
             $force,
             $draftonnotice
         );
@@ -187,6 +188,7 @@ final class importer_test extends \advanced_testcase {
             $this->format,
             $this->question,
             __DIR__ . '/fixtures/edited-true-false-question.xml',
+            false,
             $force,
             true
         );

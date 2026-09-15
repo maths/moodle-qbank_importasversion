@@ -87,6 +87,7 @@ if ($importform->is_cancelled()) {
 // Handle to form being submitted.
 if ($fromform = $importform->get_data()) {
     $fromform->format = 'xml';
+    $mergetags = isset($fromform->mergetagsbutton);
 
     // File checks out ok.
     $fileisgood = false;
@@ -119,6 +120,7 @@ if ($fromform = $importform->get_data()) {
         $qformat,
         $question,
         $importfile,
+        $mergetags,
         !empty($fromform->force),
         true // Retained warnings from this form are explicitly imported as Draft.
     );
