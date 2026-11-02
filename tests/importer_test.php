@@ -195,6 +195,9 @@ final class importer_test extends \advanced_testcase {
         $this->assert_import_result($result, true, 'ready');
         $loaded = \question_bank::load_question($this->format->questionids[0]);
         $this->assertInstanceOf(\qtype_truefalse_question::class, $loaded);
+        // The new version needs its own stamp, which is also the default variant selection seed.
+        $this->assertNotEmpty($loaded->stamp);
+        $this->assertNotEquals($this->question->stamp, $loaded->stamp);
     }
 
     /**
