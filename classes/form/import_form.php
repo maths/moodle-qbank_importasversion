@@ -55,6 +55,11 @@ class import_form extends moodleform {
         );
         $mform->addRule('newfile', null, 'required', null, 'client');
 
+        $mform->addElement('advcheckbox', 'force', get_string('forceimport', 'qbank_importasversion'));
+        $mform->addHelpButton('force', 'forceimport', 'qbank_importasversion');
+        $mform->setDefault('force', 0);
+        $mform->setType('force', PARAM_BOOL);
+
         $mform->addElement('hidden', 'id');
         $mform->setType('id', PARAM_INT);
 
@@ -68,7 +73,18 @@ class import_form extends moodleform {
         $mform->setType('returnurl', PARAM_LOCALURL);
 
         // Submit and cancel buttons.
-        $this->add_action_buttons(true, get_string('import'));
+        $buttonarray = [];
+        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('import'));
+        if (\core_tag_tag::is_enabled('core_question', 'question')) {
+            $buttonarray[] = $mform->createElement(
+                'submit',
+                'mergetagsbutton',
+                get_string('importandmergetags', 'qbank_importasversion')
+            );
+        }
+        $buttonarray[] = $mform->createElement('cancel');
+        $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
+        $mform->closeHeaderBefore('buttonar');
     }
 
     /**
