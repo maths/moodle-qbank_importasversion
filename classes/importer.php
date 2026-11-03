@@ -118,6 +118,9 @@ class importer extends qformat_xml {
         $newquestion->timemodified = time();
         $newquestion->context = $context; // Context is taken from the existing question.
         $newquestion->category = $question->category;
+        // Every question version needs its own stamp, like in core. Questions with an
+        // empty stamp share their variant selection seed and get coupled variants in quizzes.
+        $newquestion->stamp = make_unique_id_code();
         $newquestion->id = $DB->insert_record('question', $importedquestion);
 
         // Create a version for each question imported.
