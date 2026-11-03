@@ -8,6 +8,7 @@
 * Preserve permissive imports and Ready status for existing API callers by default.
 * Roll back failed saves, including false return values, before committing or emitting an import event.
 * Various code quality improvements dealing with edge cases.
+* Added question stamps for proper seeding of variants
 
 ## Changes in version 1.5.1
 
