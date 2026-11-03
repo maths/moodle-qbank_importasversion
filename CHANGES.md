@@ -2,6 +2,7 @@
 
 ## Changes in version 1.6
 
+* Added a bulk import: import many questions from one Moodle XML file at once, each as a new version of an existing question that is matched by its category and ID number. A dry run shows what would happen before anything is saved. Questions that cannot be matched are skipped, and no new questions are created.
 * Added proper context handling during question import.
 * Reject question-type save notices by default in the upload form, with an explicit override.
 * The form override explicitly imports versions with warnings as Draft; imports without warnings remain Ready.

@@ -35,6 +35,15 @@ class plugin_feature extends plugin_features_base {
         ];
     }
 
+    #[\Override]
+    public function get_navigation_node(): ?\core_question\local\bank\navigation_node_base {
+        // The question bank navigation menu is built from this.
+        if (!class_exists('\core_question\local\bank\navigation_node_base')) {
+            return null;
+        }
+        return new navigation();
+    }
+
     // Support multiple Moodle versions. This method can be removed once 4.3 is the lowest supported version.
     #[\Override]
     public function get_question_columns($qbank): array {
