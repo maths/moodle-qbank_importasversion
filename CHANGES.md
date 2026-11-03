@@ -1,27 +1,38 @@
 # Change log for the Import question as new version question bank plugin
 
+## Changes in version 1.6
+
+* Added proper context handling during question import.
+* Reject question-type save notices by default in the upload form, with an explicit override.
+* The form override explicitly imports versions with warnings as Draft; imports without warnings remain Ready.
+* Preserve permissive imports and Ready status for existing API callers by default.
+* Roll back failed saves, including false return values, before committing or emitting an import event.
+* Various code quality improvements dealing with edge cases.
+* Added question stamps for proper seeding of variants.
+* Added verified compatibility with Moodle 5.3.
+
 ## Changes in version 1.5.1
 
-* Fixed typo in `version.php`
+* Fixed typo in `version.php`.
 
 ## Changes in version 1.5
 
-* Add verified compatibility with Moodle 5.2
-* Made plugin available via Composer
+* Add verified compatibility with Moodle 5.2.
+* Made plugin available via Composer.
 
 ## Changes in version 1.4
 
-* Changed to default page style instead of popup style
-* Added pass through of error messages and notices during import
-* Add verified compatibility with Moodle 5.1
+* Changed to default page style instead of popup style.
+* Added pass through of error messages and notices during import.
+* Add verified compatibility with Moodle 5.1.
 
 ## Changes in version 1.3
 
-* Add verified compatibility with Moodle 5.0
+* Add verified compatibility with Moodle 5.0.
 
 ## Changes in version 1.2
 
-* Add verified compatibility with Moodle 4.4 and 4.5
+* Add verified compatibility with Moodle 4.4 and 4.5.
 
 ## Changes in version 1.1
 
