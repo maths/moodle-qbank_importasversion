@@ -56,7 +56,13 @@ if ($cmid = optional_param('cmid', 0, PARAM_INT)) {
     $context = context_course::instance($courseid);
     $urlparams['courseid'] = $courseid;
 }
-$PAGE->set_url('/question/bank/importasversion/import.php', $urlparams);
+$thispageurl = new moodle_url('/question/bank/importasversion/import.php', $urlparams);
+$PAGE->set_url($thispageurl);
+
+// Update returnurl now that we know the context we are in.
+if (!$returnurl) {
+    $returnurl = new moodle_url('/question/edit.php', ['cmid' => $cmid]);
+}
 
 question_require_capability_on($question, 'edit');
 
@@ -81,6 +87,7 @@ if ($importform->is_cancelled()) {
 // Handle to form being submitted.
 if ($fromform = $importform->get_data()) {
     $fromform->format = 'xml';
+    $mergetags = isset($fromform->mergetagsbutton);
 
     // File checks out ok.
     $fileisgood = false;
@@ -109,7 +116,14 @@ if ($fromform = $importform->get_data()) {
         throw new moodle_exception('cannotimport', '', $thispageurl->out());
     }
 
-    $result = qbank_importasversion\importer::import_file($qformat, $question, $importfile);
+    $result = qbank_importasversion\importer::import_file(
+        $qformat,
+        $question,
+        $importfile,
+        $mergetags,
+        !empty($fromform->force),
+        true // Retained warnings from this form are explicitly imported as Draft.
+    );
 
     // In case anything needs to be done after.
     if (!$qformat->importpostprocess()) {

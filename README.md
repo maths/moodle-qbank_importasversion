@@ -9,9 +9,9 @@ version of this question. (This is different from the standard way of importing 
 creates new questions.)
 
 
-## Installing from the Moodle plugins database
+## Installing from the Moodle Marketplace
 
-Install from the Moodle plugins database https://moodle.org/plugins/qbank_importasversion.
+Install from the Moodle Marketplace: https://marketplace.moodle.com/plugins/qbank_importasversion
 
 
 ### Install using git
