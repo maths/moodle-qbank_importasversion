@@ -242,13 +242,16 @@ class importer extends qformat_xml {
         if (core_tag_tag::is_enabled('core_question', 'question')) {
             // Course tags on questions are deprecated; merge them into the question tags.
             $mergedtags = array_merge($newquestion->coursetags ?? [], $newquestion->tags ?? []);
-            core_tag_tag::set_item_tags(
-                'core_question',
-                'question',
-                $newquestion->id,
-                $newquestion->context,
-                $mergedtags
-            );
+            // The new question has no tags yet. Without tags to set, there is nothing to do.
+            if ($mergedtags) {
+                core_tag_tag::set_item_tags(
+                    'core_question',
+                    'question',
+                    $newquestion->id,
+                    $newquestion->context,
+                    $mergedtags
+                );
+            }
         }
 
         // A rejected notice must be reported as a failure, not as a successful import with warnings.
