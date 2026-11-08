@@ -62,8 +62,6 @@ class importer extends qformat_xml {
         bool $force = true,
         bool $draftonnotice = false
     ) {
-        global $USER, $DB;
-
         $context = context::instance_by_id($question->contextid);
         $contexts = $qformat->contexts ?? [];
         $contexts[] = $context;
@@ -90,19 +88,40 @@ class importer extends qformat_xml {
             return $result;
         }
 
-        // Count number of questions processed.
-        $count = 0;
-
-        // For now, single question.
-        $importedquestion = $importedquestions[0];
-
-        $transaction = $DB->start_delegated_transaction();
-
-        $count++;
-
         if ($qformat->displayprogress) {
-            echo "<hr /><p><b>{$count}</b>. " . $qformat->format_question_text($question) . "</p>";
+            echo "<hr /><p><b>1</b>. " . $qformat->format_question_text($question) . "</p>";
         }
+
+        return self::save_version($qformat, $question, $importedquestions[0], $mergetags, $force, $draftonnotice);
+    }
+
+    /**
+     * Save a parsed question as a new version of an existing question.
+     *
+     * Runs in a delegated transaction, so a caller can group several saves in one transaction.
+     * An error rolls back the caller's transaction as well.
+     *
+     * @param qformat_xml $qformat the format instance that parsed the question.
+     * @param stdClass|question_definition $question the existing question. Needs id, category,
+     *      contextid and questionbankentryid.
+     * @param stdClass $importedquestion the question as returned by qformat_xml::readquestions().
+     * @param bool $mergetags see import_file().
+     * @param bool $force see import_file().
+     * @param bool $draftonnotice see import_file().
+     * @return object|boolean as for import_file().
+     */
+    public static function save_version(
+        qformat_xml $qformat,
+        $question,
+        stdClass $importedquestion,
+        bool $mergetags = false,
+        bool $force = true,
+        bool $draftonnotice = false
+    ) {
+        global $USER, $DB;
+
+        $context = context::instance_by_id($question->contextid);
+        $transaction = $DB->start_delegated_transaction();
 
         $fileoptions = [
                 'subdirs' => true,
@@ -330,10 +349,10 @@ class importer extends qformat_xml {
      * these are "course tags" managed separately), or any other context
      * (kept, as a legacy mis-contexted instance).
      *
-     * @param question_definition $question the question being replaced.
+     * @param stdClass|question_definition $question the question being replaced.
      * @return array the raw tag names to carry over.
      */
-    protected static function get_replaced_version_tagnames(question_definition $question): array {
+    protected static function get_replaced_version_tagnames($question): array {
         if (!core_tag_tag::is_enabled('core_question', 'question')) {
             return [];
         }

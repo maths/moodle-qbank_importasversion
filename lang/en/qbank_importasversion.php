@@ -25,6 +25,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['bulkconfirm'] = 'Import {$a} new versions';
+$string['bulkfailed'] = 'Nothing was imported. Question {$a->index} ({$a->name}) could not be saved: {$a->error}';
+$string['bulkfilegone'] = 'The uploaded file is no longer available. Upload it again.';
+$string['bulkimport'] = 'Import new versions';
+$string['bulkimport_help'] = 'Upload a Moodle XML file. Each question in it becomes a new version of the question with the same ID number in this question bank. Questions without a match are skipped. Either all matched questions are imported, or none.';
+$string['bulkimported'] = 'Imported {$a} new versions.';
+$string['bulkpreview'] = '{$a} questions will get a new version. Nothing has been imported yet.';
 $string['event:question_version_imported'] = 'Question version imported';
 $string['forceimport'] = 'Import with warnings as Draft';
 $string['forceimport_help'] = 'By default, question-type save warnings stop this upload. Enable this option to retain a version with warnings as Draft for review or repair, leaving existing versions unchanged. Imports without warnings are still saved as Ready. Save errors cannot be overridden.';
@@ -39,5 +46,11 @@ $string['privacy:metadata'] = 'The Import question as new version question bank 
 $string['questionimportedasversion'] = 'New version of question \'{$a}\' imported successfully.';
 $string['questionimportedwithwarnings'] = 'New version of question \'{$a->name}\' imported successfully. However, an issue was raised: {$a->notice}';
 $string['questionimportfailed'] = 'Question import failed for \'{$a->name}\'. {$a->error}';
+$string['status_ambiguous'] = 'Skipped: several categories have a question with this ID number.';
+$string['status_duplicate'] = 'Skipped: the file contains this ID number more than once.';
+$string['status_noidnumber'] = 'Skipped: the question has no ID number.';
+$string['status_nopermission'] = 'Skipped: you cannot edit the existing question.';
+$string['status_notfound'] = 'Skipped: no question in this bank has this ID number.';
+$string['status_typemismatch'] = 'Skipped: the existing question has a different type.';
 $string['toomanyquestionsinfile'] = 'Your file did not contain exactly one question!';
 $string['unknownerror'] = 'There was an error saving the question.';

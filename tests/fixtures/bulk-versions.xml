@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+  <question type="truefalse">
+    <name><text>Updated one</text></name>
+    <questiontext format="html"><text>The first statement, updated.</text></questiontext>
+    <idnumber>TQ-1</idnumber>
+    <answer fraction="100" format="moodle_auto_format"><text>true</text><feedback format="html"><text></text></feedback></answer>
+    <answer fraction="0" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
+  </question>
+  <question type="truefalse">
+    <name><text>Updated two</text></name>
+    <questiontext format="html"><text>The second statement, updated.</text></questiontext>
+    <idnumber>TQ-2</idnumber>
+    <answer fraction="100" format="moodle_auto_format"><text>true</text><feedback format="html"><text></text></feedback></answer>
+    <answer fraction="0" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
+  </question>
+  <question type="truefalse">
+    <name><text>Unknown</text></name>
+    <questiontext format="html"><text>No question has this ID number.</text></questiontext>
+    <idnumber>TQ-9</idnumber>
+    <answer fraction="100" format="moodle_auto_format"><text>true</text><feedback format="html"><text></text></feedback></answer>
+    <answer fraction="0" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
+  </question>
+</quiz>
