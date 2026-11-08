@@ -86,6 +86,13 @@ if ($confirm) {
 }
 
 echo $OUTPUT->header();
+// The question bank menu: qbank_action_menu from Moodle 4.3, qbank_actionbar before.
+$bankrenderer = $PAGE->get_renderer('core_question', 'bank');
+if (class_exists('\core_question\output\qbank_action_menu')) {
+    echo $bankrenderer->render(new \core_question\output\qbank_action_menu($thispageurl));
+} else if (class_exists('\core_question\output\qbank_actionbar')) {
+    echo $bankrenderer->render(new \core_question\output\qbank_actionbar($thispageurl));
+}
 echo $OUTPUT->heading(get_string('bulkimport', 'qbank_importasversion'));
 if (!isset($result)) {
     echo html_writer::tag('p', get_string('bulkimport_help', 'qbank_importasversion'));
