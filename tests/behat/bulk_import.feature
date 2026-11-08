@@ -22,13 +22,14 @@ Feature: Import new versions of many questions from one file
       | Test questions   | truefalse | First one  | TQ-1     |
       | Test questions   | truefalse | Second one | TQ-2     |
 
-  @javascript @_file_upload
+  @javascript @_file_upload @accessibility
   Scenario: A teacher previews the file, then imports the matching questions
     Given I am on the "Course 1" "qbank_importasversion > bulk import" page logged in as "teacher"
     When I upload "question/bank/importasversion/tests/fixtures/bulk-versions.xml" file to "Import" filemanager
     And I press "Import"
     Then I should see "2 questions will get a new version. Nothing has been imported yet."
     And I should see "Skipped: no question in this bank has this ID number." in the "TQ-9" "table_row"
+    And the page should meet accessibility standards
     When I press "Import 2 new versions"
     Then I should see "Imported 2 new versions."
     And I press "Continue"

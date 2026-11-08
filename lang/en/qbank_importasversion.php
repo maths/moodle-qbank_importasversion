@@ -25,12 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['bulkattention'] = 'Questions that need your attention';
 $string['bulkconfirm'] = 'Import {$a} new versions';
 $string['bulkfailed'] = 'Nothing was imported. Question {$a->index} ({$a->name}) could not be saved: {$a->error}';
 $string['bulkfilegone'] = 'The uploaded file is no longer available. Upload it again.';
 $string['bulkimport'] = 'Import new versions';
 $string['bulkimport_help'] = 'Upload a Moodle XML file. Each question in it becomes a new version of the question with the same ID number in this question bank. Questions without a match are skipped. Either all matched questions are imported, or none.';
 $string['bulkimported'] = 'Imported {$a} new versions.';
+$string['bulknothing'] = 'No question in the file matches a question in this bank. Nothing will be imported.';
 $string['bulkpreview'] = '{$a} questions will get a new version. Nothing has been imported yet.';
 $string['event:question_version_imported'] = 'Question version imported';
 $string['forceimport'] = 'Import with warnings as Draft';

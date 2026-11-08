@@ -108,11 +108,14 @@ if (!empty($result->error)) {
         \core\output\notification::NOTIFY_SUCCESS
     );
 } else if (!$result->errors) {
-    echo html_writer::tag('p', get_string('bulkpreview', 'qbank_importasversion', $ready));
+    $preview = $ready ? get_string('bulkpreview', 'qbank_importasversion', $ready)
+        : get_string('bulknothing', 'qbank_importasversion');
+    echo html_writer::div($preview, 'alert ' . ($ready ? 'alert-info' : 'alert-warning'), ['role' => 'status']);
 }
 
 // List only the questions that need attention: skipped ones, and imported ones with warnings.
 $table = new html_table();
+$table->caption = get_string('bulkattention', 'qbank_importasversion');
 $table->head = ['#', get_string('questionname', 'question'), get_string('idnumber', 'question'),
     get_string('status')];
 foreach ($result->rows as $row) {

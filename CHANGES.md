@@ -1,5 +1,9 @@
 # Change log for the Import question as new version question bank plugin
 
+## Unreleased
+
+* Added a page that imports many questions from one Moodle XML file as new versions of the questions with the same ID numbers.
+
 ## Changes in version 1.6
 
 * Added proper context handling during question import.
