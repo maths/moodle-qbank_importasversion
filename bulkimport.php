@@ -52,7 +52,7 @@ $PAGE->set_title(get_string('bulkimport', 'qbank_importasversion'));
 $PAGE->set_heading($COURSE->fullname);
 $PAGE->activityheader->disable();
 
-$form = new import_form($thispageurl);
+$form = new import_form($thispageurl, ['preview' => true]);
 $form->set_data($urlparams);
 if ($form->is_cancelled()) {
     redirect($returnurl);

@@ -26,7 +26,7 @@ Feature: Import new versions of many questions from one file
   Scenario: A teacher previews the file, then imports the matching questions
     Given I am on the "Course 1" "qbank_importasversion > bulk import" page logged in as "teacher"
     When I upload "question/bank/importasversion/tests/fixtures/bulk-versions.xml" file to "Import" filemanager
-    And I press "Import"
+    And I press "Preview"
     Then I should see "2 questions will get a new version. Nothing has been imported yet."
     And I should see "Skipped: no question in this bank has this ID number." in the "TQ-9" "table_row"
     And the page should meet accessibility standards

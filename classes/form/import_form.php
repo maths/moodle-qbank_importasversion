@@ -72,14 +72,19 @@ class import_form extends moodleform {
         $mform->addElement('hidden', 'returnurl');
         $mform->setType('returnurl', PARAM_LOCALURL);
 
-        // Submit and cancel buttons.
+        // Submit and cancel buttons. The bulk import page previews first, so its buttons say so.
+        $preview = !empty($this->_customdata['preview']);
         $buttonarray = [];
-        $buttonarray[] = $mform->createElement('submit', 'submitbutton', get_string('import'));
+        $buttonarray[] = $mform->createElement(
+            'submit',
+            'submitbutton',
+            $preview ? get_string('bulkpreviewbutton', 'qbank_importasversion') : get_string('import')
+        );
         if (\core_tag_tag::is_enabled('core_question', 'question')) {
             $buttonarray[] = $mform->createElement(
                 'submit',
                 'mergetagsbutton',
-                get_string('importandmergetags', 'qbank_importasversion')
+                get_string($preview ? 'bulkpreviewmergetags' : 'importandmergetags', 'qbank_importasversion')
             );
         }
         $buttonarray[] = $mform->createElement('cancel');
