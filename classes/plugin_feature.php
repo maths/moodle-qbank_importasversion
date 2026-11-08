@@ -28,6 +28,12 @@ use core_question\local\bank\view;
  */
 class plugin_feature extends plugin_features_base {
     #[\Override]
+    public function get_navigation_node(): ?\core_question\local\bank\navigation_node_base {
+        // Moodle 4.0 and later build the question bank navigation menu from this.
+        return new navigation();
+    }
+
+    #[\Override]
     public function get_question_actions(view $qbank): array {
         // This is what is used in Moodle 4.3+.
         return [
